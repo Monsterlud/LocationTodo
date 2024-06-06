@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "819658759384",
+    "project_id": "locationtodo-2dd35",
+    "storage_bucket": "locationtodo-2dd35.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:819658759384:android:ec35a9cbc7213854bf4bad",
+        "android_client_info": {
+          "package_name": "com.monsalud.locationtodo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "819658759384-lr3dubkfjpfv3jo3sf42rspfgqul2tdj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.monsalud.locationtodo",
+            "certificate_hash": "1fab7ce7b8abcfd494458871f39354e6b73ae39f"
+          }
+        },
+        {
+          "client_id": "819658759384-76viiln7booiks2657kq2ubfmsk3u4i1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAPrstBeyx7w_RBc8k2IuI9Yf6YLj9MNo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "819658759384-76viiln7booiks2657kq2ubfmsk3u4i1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
