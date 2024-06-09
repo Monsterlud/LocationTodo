@@ -1,8 +1,11 @@
 package com.monsalud.locationtodo.locationreminders.reminderslist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
+import com.firebase.ui.auth.AuthUI
+import com.google.firebase.auth.FirebaseAuth
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.base.BaseFragment
 import com.monsalud.locationtodo.base.NavigationCommand
@@ -11,6 +14,8 @@ import com.monsalud.locationtodo.utils.setDisplayHomeAsUpEnabled
 import com.monsalud.locationtodo.utils.setTitle
 import com.monsalud.locationtodo.utils.setup
 import org.koin.androidx.viewmodel.ext.android.viewModel
+
+private const val TAG = "ReminderListFragment"
 
 class ReminderListFragment : BaseFragment() {
 
@@ -22,7 +27,8 @@ class ReminderListFragment : BaseFragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(inflater,
+        binding = DataBindingUtil.inflate(
+            inflater,
             R.layout.fragment_reminders, container, false
         )
         binding.viewModel = _viewModel
@@ -65,7 +71,11 @@ class ReminderListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.logout -> {
-                // TODO: add the logout implementation
+                Log.i(TAG, "***onOptionsItemSelected: LOGOUT USER")
+                AuthUI.getInstance().signOut(requireContext())
+                _viewModel.navigationCommand.postValue(
+                    NavigationCommand.To(ReminderListFragmentDirections.toLoginFragment())
+                )
             }
         }
         return super.onOptionsItemSelected(item)

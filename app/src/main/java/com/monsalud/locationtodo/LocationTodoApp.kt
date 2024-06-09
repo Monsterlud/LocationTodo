@@ -11,7 +11,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
-class MyApp : Application() {
+class LocationTodoApp : Application() {
 
 	override fun onCreate() {
 		super.onCreate()
@@ -19,7 +19,7 @@ class MyApp : Application() {
 		/**
 		 * use Koin Library as a service locator
 		 */
-		val myModule = module {
+		val locationTodoModule = module {
 			//Declare a ViewModel - be later inject into Fragment with dedicated injector using by viewModel()
 			viewModel {
 				RemindersListViewModel(
@@ -36,12 +36,12 @@ class MyApp : Application() {
 				)
 			}
 			single { RemindersLocalRepository(get()) as ReminderDataSource }
-			single { LocalDB.createRemindersDao(this@MyApp) }
+			single { LocalDB.createRemindersDao(this@LocationTodoApp) }
 		}
 
 		startKoin {
-			androidContext(this@MyApp)
-			modules(listOf(myModule))
+			androidContext(this@LocationTodoApp)
+			modules(listOf(locationTodoModule))
 		}
 	}
 }

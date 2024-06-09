@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/reminderListFragment">
+    app:startDestination="@id/authenticationFragment">
 
     <fragment
         android:id="@+id/reminderListFragment"
@@ -13,6 +13,9 @@
         <action
             android:id="@+id/to_save_reminder"
             app:destination="@id/saveReminderFragment" />
+        <action
+            android:id="@+id/to_login_fragment"
+            app:destination="@id/authenticationFragment" />
     </fragment>
 
     <fragment
@@ -33,4 +36,13 @@
         android:name="com.monsalud.locationtodo.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment"
         android:label="Select Location"
         tools:layout="@layout/fragment_select_location" />
+    <fragment
+        android:id="@+id/authenticationFragment"
+        android:name="com.monsalud.locationtodo.authentication.AuthenticationFragment"
+        android:label="fragment_authentication"
+        tools:layout="@layout/fragment_authentication" >
+        <action
+            android:id="@+id/action_authenticationFragment_to_reminderListFragment"
+            app:destination="@id/reminderListFragment" />
+    </fragment>
 </navigation>
