@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Location Reminders</string>
+    <string name="app_name">LocationTodo</string>
     <string name="error_happened">Error happened</string>
     <string name="retry">Retry</string>
     <string name="no_data">No Data</string>
@@ -26,7 +26,7 @@
     <string name="geofence_entered">Geofence Entered</string>
     <string name="channel_name">GeofenceStatus</string>
     <string name="notification_channel_description">Geofence status notification</string>
-    <string name="content_text">Location Reminder</string>
+    <string name="content_text">LocationTodo</string>
     <string name="select_title">Please select title</string>
     <string name="select_location">Please select location</string>
     <string name="geofences_not_added">Problem in adding geofences.</string>

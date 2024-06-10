@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
 import com.google.firebase.auth.FirebaseAuth
-import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.FragmentAuthenticationBinding
 
 class AuthenticationFragment : Fragment() {
@@ -34,7 +33,6 @@ class AuthenticationFragment : Fragment() {
         binding.btnLogin.setOnClickListener {
             launchSigninFlow()
         }
-
         return binding.root
     }
 
