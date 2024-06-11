@@ -6,15 +6,10 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -32,14 +27,12 @@ import org.koin.android.ext.android.inject
 import java.util.Locale
 
 private const val TAG = "SelectLocationFragment"
+private const val REQUEST_LOCATION_PERMISSION = 1
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
-    private val REQUEST_LOCATION_PERMISSION = 1
-
-    // Use Koin to get the view model of the SaveReminder
-    override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
+    override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var map: GoogleMap
 
     override fun onCreateView(
@@ -49,7 +42,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
 
         binding.viewModel = _viewModel
-        binding.lifecycleOwner = this
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
@@ -68,6 +60,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        binding.lifecycleOwner = this
+        super.onViewCreated(view, savedInstanceState)
+    }
+
     private fun onLocationSelected() {
         // TODO: When the user confirms on the selected location,
         //  send back the selected location details to the view model
@@ -80,6 +77,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            android.R.id.home -> {
+                findNavController().navigateUp()
+            }
             R.id.normal_map -> {
                 map.mapType = GoogleMap.MAP_TYPE_NORMAL
                 true
@@ -198,7 +198,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 setMapLongClick()
                 setPoiClick(map)
             } else {
-                Toast.makeText(context, "Location Permission Not Granted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Location Permission Not Granted", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
     }

@@ -1,6 +1,8 @@
 package com.monsalud.locationtodo
 
 import android.app.Application
+import com.google.firebase.auth.FirebaseAuth
+import com.monsalud.locationtodo.authentication.AuthenticationViewModel
 import com.monsalud.locationtodo.locationreminders.data.ReminderDataSource
 import com.monsalud.locationtodo.locationreminders.data.local.LocalDB
 import com.monsalud.locationtodo.locationreminders.data.local.RemindersLocalRepository
@@ -25,6 +27,11 @@ class LocationTodoApp : Application() {
 				RemindersListViewModel(
 					get(),
 					get() as ReminderDataSource
+				)
+			}
+			viewModel {
+				AuthenticationViewModel(
+					get()
 				)
 			}
 			//Declare singleton definitions to be later injected using by inject()

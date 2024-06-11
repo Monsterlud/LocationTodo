@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/authenticationFragment">
+    app:startDestination="@id/reminderListFragment">
 
     <fragment
         android:id="@+id/reminderListFragment"
@@ -11,11 +11,8 @@
         android:label="ReminderListFragment"
         tools:layout="@layout/fragment_reminders">
         <action
-            android:id="@+id/to_save_reminder"
+            android:id="@+id/to_save_reminder_fragment"
             app:destination="@id/saveReminderFragment" />
-        <action
-            android:id="@+id/to_login_fragment"
-            app:destination="@id/authenticationFragment" />
     </fragment>
 
     <fragment
@@ -24,10 +21,10 @@
         android:label="Add Reminder"
         tools:layout="@layout/fragment_save_reminder">
         <action
-            android:id="@+id/action_saveReminderFragment_to_reminderListFragment"
+            android:id="@+id/to_reminder_list_fragment"
             app:destination="@id/reminderListFragment" />
         <action
-            android:id="@+id/action_saveReminderFragment_to_selectLocationFragment"
+            android:id="@+id/to_select_location_fragment"
             app:destination="@id/selectLocationFragment" />
     </fragment>
 
@@ -35,14 +32,10 @@
         android:id="@+id/selectLocationFragment"
         android:name="com.monsalud.locationtodo.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment"
         android:label="Select Location"
-        tools:layout="@layout/fragment_select_location" />
-    <fragment
-        android:id="@+id/authenticationFragment"
-        android:name="com.monsalud.locationtodo.authentication.AuthenticationFragment"
-        android:label="fragment_authentication"
-        tools:layout="@layout/fragment_authentication" >
+        tools:layout="@layout/fragment_select_location" >
         <action
-            android:id="@+id/action_authenticationFragment_to_reminderListFragment"
-            app:destination="@id/reminderListFragment" />
+            android:id="@+id/to_save_reminder_fragment"
+            app:destination="@id/saveReminderFragment" />
     </fragment>
+
 </navigation>

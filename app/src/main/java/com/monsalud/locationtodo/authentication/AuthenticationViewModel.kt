@@ -1,12 +1,14 @@
 package com.monsalud.locationtodo.authentication
 
+import android.app.Application
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
-import com.google.firebase.ktx.Firebase
+import com.monsalud.locationtodo.base.BaseViewModel
 
 private const val TAG = "AuthenticationViewModel"
-class AuthenticationViewModel : ViewModel() {
+class AuthenticationViewModel(
+    app: Application
+) : BaseViewModel(app) {
     enum class AuthenticationState {
         AUTHENTICATED, UNAUTHENTICATED
     }

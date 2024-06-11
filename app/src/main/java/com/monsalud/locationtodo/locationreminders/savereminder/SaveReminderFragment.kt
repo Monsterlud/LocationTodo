@@ -2,9 +2,12 @@ package com.monsalud.locationtodo.locationreminders.savereminder
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.navigateUp
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.base.BaseFragment
 import com.monsalud.locationtodo.base.NavigationCommand
@@ -15,8 +18,8 @@ import org.koin.android.ext.android.inject
 class SaveReminderFragment : BaseFragment() {
 
     // Get the view model this time as a single to be shared with the another fragment
-    override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSaveReminderBinding
+    override val _viewModel: SaveReminderViewModel by inject()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -25,6 +28,7 @@ class SaveReminderFragment : BaseFragment() {
         binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
 
         setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
         binding.viewModel = _viewModel
         return binding.root
     }
@@ -34,9 +38,9 @@ class SaveReminderFragment : BaseFragment() {
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
             // Navigate to another fragment to get the user location
-            val directions = SaveReminderFragmentDirections
-                .actionSaveReminderFragmentToSelectLocationFragment()
-            _viewModel.navigationCommand.value = NavigationCommand.To(directions)
+            _viewModel.navigationCommand.postValue(
+                NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
+            )
         }
 
         binding.saveReminder.setOnClickListener {
@@ -49,6 +53,15 @@ class SaveReminderFragment : BaseFragment() {
             // TODO: use the user entered reminder details to:
             //  1) add a geofencing request
             //  2) save the reminder to the local db
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                findNavController().navigateUp()
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

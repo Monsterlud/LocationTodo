@@ -1,16 +1,16 @@
 package com.monsalud.locationtodo.locationreminders.reminderslist
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
-import com.google.firebase.auth.FirebaseAuth
 import com.monsalud.locationtodo.R
+import com.monsalud.locationtodo.authentication.AuthenticationActivity
 import com.monsalud.locationtodo.base.BaseFragment
 import com.monsalud.locationtodo.base.NavigationCommand
 import com.monsalud.locationtodo.databinding.FragmentRemindersBinding
-import com.monsalud.locationtodo.utils.setDisplayHomeAsUpEnabled
 import com.monsalud.locationtodo.utils.setTitle
 import com.monsalud.locationtodo.utils.setup
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -19,9 +19,8 @@ private const val TAG = "ReminderListFragment"
 
 class ReminderListFragment : BaseFragment() {
 
-    // Use Koin to retrieve the ViewModel instance
-    override val _viewModel: RemindersListViewModel by viewModel()
     private lateinit var binding: FragmentRemindersBinding
+    override val _viewModel: RemindersListViewModel by viewModel()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,21 +31,21 @@ class ReminderListFragment : BaseFragment() {
             R.layout.fragment_reminders, container, false
         )
         binding.viewModel = _viewModel
+        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
+        binding.addReminderFAB.setOnClickListener { navigateToAddReminder() }
 
         setHasOptionsMenu(true)
-        setDisplayHomeAsUpEnabled(false)
         setTitle(getString(R.string.app_name))
-        binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.lifecycleOwner = this
         setupRecyclerView()
-        binding.addReminderFAB.setOnClickListener {
-            navigateToAddReminder()
-        }
+
     }
 
     override fun onResume() {
@@ -58,7 +57,7 @@ class ReminderListFragment : BaseFragment() {
     private fun navigateToAddReminder() {
         // Use the navigationCommand live data to navigate between the fragments
         _viewModel.navigationCommand.postValue(
-            NavigationCommand.To(ReminderListFragmentDirections.toSaveReminder())
+            NavigationCommand.To(ReminderListFragmentDirections.toSaveReminderFragment())
         )
     }
 
@@ -73,9 +72,12 @@ class ReminderListFragment : BaseFragment() {
             R.id.logout -> {
                 Log.i(TAG, "***onOptionsItemSelected: LOGOUT USER")
                 AuthUI.getInstance().signOut(requireContext())
-                _viewModel.navigationCommand.postValue(
-                    NavigationCommand.To(ReminderListFragmentDirections.toLoginFragment())
+                val intent = Intent(
+                    requireActivity(),
+                    AuthenticationActivity::class.java,
                 )
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
             }
         }
         return super.onOptionsItemSelected(item)
