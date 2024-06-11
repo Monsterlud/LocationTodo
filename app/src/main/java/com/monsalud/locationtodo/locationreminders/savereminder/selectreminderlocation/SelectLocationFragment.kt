@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -34,6 +35,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var map: GoogleMap
+    private lateinit var selectLocationDialog: AlertDialog.Builder
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -54,14 +57,23 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         // TODO: add style to the map
 
-
-        // TODO: call this function after the user confirms on the selected location
-//            onLocationSelected()
+        binding.btnSaveLocation.setOnClickListener {
+            onLocationSelected()
+        }
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.lifecycleOwner = this
+
+        selectLocationDialog = AlertDialog.Builder(requireContext())
+            .setTitle("Add a Location")
+            .setMessage("Drop a pin on the map to add a location to associate with this reminder")
+            .setIcon(R.drawable.ic_location)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+        selectLocationDialog.show()
         super.onViewCreated(view, savedInstanceState)
     }
 
@@ -80,6 +92,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             android.R.id.home -> {
                 findNavController().navigateUp()
             }
+
             R.id.normal_map -> {
                 map.mapType = GoogleMap.MAP_TYPE_NORMAL
                 true
