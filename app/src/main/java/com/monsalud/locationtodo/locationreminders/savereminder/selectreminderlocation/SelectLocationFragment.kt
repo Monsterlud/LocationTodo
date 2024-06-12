@@ -3,6 +3,7 @@ package com.monsalud.locationtodo.locationreminders.savereminder.selectreminderl
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -11,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.navigateUp
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -32,11 +34,14 @@ private const val REQUEST_LOCATION_PERMISSION = 1
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
-    private lateinit var binding: FragmentSelectLocationBinding
     override val _viewModel: SaveReminderViewModel by inject()
+
+    private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
     private lateinit var selectLocationDialog: AlertDialog.Builder
 
+    private lateinit var latLong: LatLng
+    private lateinit var locationString: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -81,6 +86,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // TODO: When the user confirms on the selected location,
         //  send back the selected location details to the view model
         //  and navigate back to the previous fragment to save the reminder and add the geofence
+        _viewModel.reminderSelectedLocationStr.value = locationString
+        _viewModel.latitude.value = latLong.latitude
+        _viewModel.longitude.value = latLong.longitude
+        findNavController().navigateUp()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -146,6 +155,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 latlng.latitude,
                 latlng.longitude
             )
+
+
+
             map.addMarker(
                 MarkerOptions()
                     .position(latlng)
@@ -153,6 +165,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     .snippet(snippet)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
             )
+
+            latLong = latlng
+            val geocoder = Geocoder(requireContext(), Locale.getDefault())
+            val addresses = geocoder.getFromLocation(latlng.latitude, latlng.longitude, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address = addresses[0]
+                locationString = address.getAddressLine(0)
+            }
         }
     }
 
