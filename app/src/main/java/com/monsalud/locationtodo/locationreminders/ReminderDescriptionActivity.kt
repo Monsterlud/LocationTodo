@@ -3,7 +3,10 @@ package com.monsalud.locationtodo.locationreminders
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.ActivityReminderDescriptionBinding
@@ -31,6 +34,26 @@ class ReminderDescriptionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val layoutId = R.layout.activity_reminder_description
         binding = DataBindingUtil.setContentView(this, layoutId)
-        // TODO: Add the implementation of the reminder details
+        binding.lifecycleOwner = this
+
+        val reminderDataItem = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem
+        binding.reminderDataItem = reminderDataItem
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+    }
+
+    override fun getSupportActionBar(): ActionBar? {
+        return super.getSupportActionBar()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 }

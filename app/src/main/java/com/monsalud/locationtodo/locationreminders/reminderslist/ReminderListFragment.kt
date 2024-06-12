@@ -11,7 +11,9 @@ import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.authentication.AuthenticationActivity
 import com.monsalud.locationtodo.base.BaseFragment
 import com.monsalud.locationtodo.base.NavigationCommand
+import com.monsalud.locationtodo.base.OnClickListener
 import com.monsalud.locationtodo.databinding.FragmentRemindersBinding
+import com.monsalud.locationtodo.locationreminders.ReminderDescriptionActivity
 import com.monsalud.locationtodo.utils.setTitle
 import com.monsalud.locationtodo.utils.setup
 import kotlinx.coroutines.launch
@@ -64,7 +66,12 @@ class ReminderListFragment : BaseFragment() {
     }
 
     private fun setupRecyclerView() {
-        val adapter = RemindersListAdapter {}
+        val adapter = RemindersListAdapter(object: OnClickListener<ReminderDataItem> {
+            override fun onClick(item: ReminderDataItem) {
+                val intent = ReminderDescriptionActivity.newIntent(requireContext(), item)
+                startActivity(intent)
+            }
+        })
         // Setup the recycler view using the extension function
         binding.reminderssRecyclerView.setup(adapter)
     }

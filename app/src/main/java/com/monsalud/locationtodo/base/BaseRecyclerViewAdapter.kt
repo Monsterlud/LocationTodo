@@ -1,6 +1,7 @@
 package com.monsalud.locationtodo.base
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.DataBindingUtil
@@ -8,7 +9,7 @@ import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class BaseRecyclerViewAdapter<T>(private val callback: ((item: T) -> Unit)? = null) :
+abstract class BaseRecyclerViewAdapter<T>(private val onClickListener: OnClickListener<T>) :
     RecyclerView.Adapter<DataBindingViewHolder<T>>() {
 
     private var _items: MutableList<T> = mutableListOf()
@@ -33,7 +34,7 @@ abstract class BaseRecyclerViewAdapter<T>(private val callback: ((item: T) -> Un
         val item = getItem(position)
         holder.bind(item)
         holder.itemView.setOnClickListener {
-            callback?.invoke(item)
+            onClickListener.onClick(item)
         }
     }
 
@@ -63,4 +64,8 @@ abstract class BaseRecyclerViewAdapter<T>(private val callback: ((item: T) -> Un
     open fun getLifecycleOwner(): LifecycleOwner? {
         return null
     }
+}
+
+interface OnClickListener<T> {
+    fun onClick(item: T)
 }

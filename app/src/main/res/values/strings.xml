@@ -51,4 +51,7 @@
     <string name="save_location">SAVE LOCATION</string>
 
     <string name="map_id">e28bc8ea898ab67c</string>
+    <string name="title">Title</string>
+    <string name="description">Description</string>
+    <string name="location">Location</string>
 </resources>
