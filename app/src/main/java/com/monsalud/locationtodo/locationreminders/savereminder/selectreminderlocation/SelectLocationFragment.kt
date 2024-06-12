@@ -12,7 +12,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.navigateUp
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -59,9 +58,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             childFragmentManager.findFragmentById(R.id.locationChooserMap) as SupportMapFragment
         supportMapFragment.getMapAsync(this)
 
-
-        // TODO: add style to the map
-
         binding.btnSaveLocation.setOnClickListener {
             onLocationSelected()
         }
@@ -83,9 +79,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun onLocationSelected() {
-        // TODO: When the user confirms on the selected location,
-        //  send back the selected location details to the view model
-        //  and navigate back to the previous fragment to save the reminder and add the geofence
         _viewModel.reminderSelectedLocationStr.value = locationString
         _viewModel.latitude.value = latLong.latitude
         _viewModel.longitude.value = latLong.longitude

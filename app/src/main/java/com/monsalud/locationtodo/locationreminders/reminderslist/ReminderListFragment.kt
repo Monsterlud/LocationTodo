@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.firebase.ui.auth.AuthUI
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.authentication.AuthenticationActivity
@@ -13,6 +14,7 @@ import com.monsalud.locationtodo.base.NavigationCommand
 import com.monsalud.locationtodo.databinding.FragmentRemindersBinding
 import com.monsalud.locationtodo.utils.setTitle
 import com.monsalud.locationtodo.utils.setup
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 private const val TAG = "ReminderListFragment"
@@ -76,6 +78,9 @@ class ReminderListFragment : BaseFragment() {
                     requireActivity(),
                     AuthenticationActivity::class.java,
                 )
+                viewLifecycleOwner.lifecycleScope.launch {
+                    _viewModel.deleteAllReminders()
+                }
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 startActivity(intent)
             }

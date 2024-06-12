@@ -51,7 +51,12 @@ class RemindersListViewModel(
         }
     }
 
-
+    fun deleteAllReminders() {
+        showLoading.value = true
+        viewModelScope.launch {
+            dataSource.deleteAllReminders()
+        }
+    }
 
     /**
      * Inform the user that there's not any data if the remindersList is empty
