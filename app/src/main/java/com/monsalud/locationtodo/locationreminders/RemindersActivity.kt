@@ -1,7 +1,6 @@
 package com.monsalud.locationtodo.locationreminders
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -10,7 +9,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.ActivityRemindersBinding
 
-    private const val TAG = "RemindersActivity"
+private const val TAG = "RemindersActivity"
+
 /**
  * The RemindersActivity that holds the reminders fragments
  */
@@ -36,7 +36,7 @@ class RemindersActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         navController.navigateUp() || super.onSupportNavigateUp()
-
         return true
     }
 }
+

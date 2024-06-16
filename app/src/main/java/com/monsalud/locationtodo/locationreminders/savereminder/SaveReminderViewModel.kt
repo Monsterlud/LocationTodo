@@ -1,7 +1,10 @@
 package com.monsalud.locationtodo.locationreminders.savereminder
 
 import android.app.Application
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.PointOfInterest
 import com.monsalud.locationtodo.R
@@ -9,9 +12,12 @@ import com.monsalud.locationtodo.base.BaseViewModel
 import com.monsalud.locationtodo.base.NavigationCommand
 import com.monsalud.locationtodo.locationreminders.data.ReminderDataSource
 import com.monsalud.locationtodo.locationreminders.data.dto.ReminderDTO
+import com.monsalud.locationtodo.locationreminders.data.dto.Result
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+private const val TAG = "SaveReminderViewModel"
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
     BaseViewModel(app) {
     val reminderTitle = MutableLiveData<String?>()
@@ -20,6 +26,15 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val selectedPOI = MutableLiveData<PointOfInterest?>()
     val latitude = MutableLiveData<Double?>()
     val longitude = MutableLiveData<Double?>()
+
+    private val _reminderSaved = MutableLiveData<Boolean>(false)
+    val reminderSaved: LiveData<Boolean>
+        get() = _reminderSaved
+
+    private val _locationsSettingsResponseTaskFinished = MutableLiveData<Boolean>(false)
+    val locationsSettingsResponseTaskFinished: LiveData<Boolean>
+        get() = _locationsSettingsResponseTaskFinished
+
 
     /**
      * Clear the live data objects to start fresh next time the view model gets called
@@ -33,12 +48,22 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         longitude.value = null
     }
 
+    fun setReminderSaved(value: Boolean) {
+        _reminderSaved.value = value
+    }
+
+    fun setLocationsSettingsResponseTaskFinished(value: Boolean) {
+        _locationsSettingsResponseTaskFinished.value = value
+    }
+
     /**
      * Validate the entered data then saves the reminder data to the DataSource
      */
     fun validateAndSaveReminder(reminderData: ReminderDataItem) {
         if (validateEnteredData(reminderData)) {
             saveReminder(reminderData)
+        } else {
+            Log.e(TAG, "Invalid Data")
         }
     }
 
@@ -58,9 +83,26 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
                     reminderData.id
                 )
             )
+            latitude.value = reminderData.latitude
+            longitude.value = reminderData.longitude
             showLoading.value = false
             showToast.value = app.getString(R.string.reminder_saved)
             navigationCommand.value = NavigationCommand.Back
+            _reminderSaved.value = true
+        }
+    }
+
+
+
+    fun getReminder(id: String) : LiveData<Result<ReminderDTO>> {
+        return liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+        showLoading.value = true
+            try {
+                val reminderDTO = dataSource.getReminder(id)
+                emit(reminderDTO)
+            } catch (e: Exception) {
+                emit(Result.Error(e.message))
+            }
         }
     }
 

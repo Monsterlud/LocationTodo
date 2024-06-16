@@ -12,6 +12,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -20,6 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.base.BaseFragment
 import com.monsalud.locationtodo.databinding.FragmentSelectLocationBinding
@@ -30,6 +33,7 @@ import java.util.Locale
 
 private const val TAG = "SelectLocationFragment"
 private const val REQUEST_LOCATION_PERMISSION = 1
+private const val GEOFENCE_REQUEST_ID = "100"
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
@@ -41,6 +45,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     private lateinit var latLong: LatLng
     private lateinit var locationString: String
+    private var isLocationSelected = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -79,10 +84,33 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun onLocationSelected() {
-        _viewModel.reminderSelectedLocationStr.value = locationString
-        _viewModel.latitude.value = latLong.latitude
-        _viewModel.longitude.value = latLong.longitude
-        findNavController().navigateUp()
+        if (isLocationSelected) {
+            _viewModel.reminderSelectedLocationStr.value = locationString
+            _viewModel.latitude.value = latLong.latitude
+            _viewModel.longitude.value = latLong.longitude
+
+            val geofenceList = mutableListOf<Geofence>()
+            geofenceList.add(
+                Geofence.Builder()
+                    .setRequestId(GEOFENCE_REQUEST_ID)
+                    .setCircularRegion(
+                        latLong.latitude,
+                        latLong.longitude,
+                        500f
+                    )
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build()
+            )
+            findNavController().navigateUp()
+
+        } else {
+            Snackbar.make(
+                binding.root,
+                "Please select a location by long-pressing on the map",
+                Snackbar.LENGTH_SHORT
+            ).show()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -149,8 +177,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 latlng.longitude
             )
 
-
-
             map.addMarker(
                 MarkerOptions()
                     .position(latlng)
@@ -159,6 +185,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE))
             )
 
+            isLocationSelected = true
             latLong = latlng
             val geocoder = Geocoder(requireContext(), Locale.getDefault())
             val addresses = geocoder.getFromLocation(latlng.latitude, latlng.longitude, 1)

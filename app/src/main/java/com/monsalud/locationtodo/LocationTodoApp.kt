@@ -6,6 +6,7 @@ import com.monsalud.locationtodo.authentication.AuthenticationViewModel
 import com.monsalud.locationtodo.locationreminders.data.ReminderDataSource
 import com.monsalud.locationtodo.locationreminders.data.local.LocalDB
 import com.monsalud.locationtodo.locationreminders.data.local.RemindersLocalRepository
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceViewModel
 import com.monsalud.locationtodo.locationreminders.reminderslist.RemindersListViewModel
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
 import org.koin.android.ext.koin.androidContext
@@ -31,6 +32,11 @@ class LocationTodoApp : Application() {
 			}
 			viewModel {
 				AuthenticationViewModel(
+					get()
+				)
+			}
+			viewModel {
+				GeofenceViewModel(
 					get()
 				)
 			}

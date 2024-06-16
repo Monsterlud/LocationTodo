@@ -50,19 +50,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".locationreminders.RemindersActivity"
             android:exported="true"
             android:theme="@style/AppTheme" />
+
         <activity
             android:name=".locationreminders.ReminderDescriptionActivity"
             android:exported="true"
-            android:theme="@style/AppTheme" />"/>
+            android:theme="@style/AppTheme" />
 
         <receiver
             android:name=".locationreminders.geofence.GeofenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true">
+            <intent-filter>
+                <action android:name="SaveReminderFragment.ACTION_GEOFENCE_EVENT" />
+            </intent-filter>
+        </receiver>
+
         <service
             android:name=".locationreminders.geofence.GeofenceTransitionsJobIntentService"
             android:exported="true"
