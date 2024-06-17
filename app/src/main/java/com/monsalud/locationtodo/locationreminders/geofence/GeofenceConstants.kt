@@ -9,4 +9,5 @@ object GeofenceConstants {
     val EXTRA_GEOFENCE_INDEX = "GEOFENCE_INDEX"
     val CIRCULAR_REGION_RADIUS = 300f
     val LOCATION_PERMISSION_INDEX = 0
+    val ACTION_GEOFENCE_EVENT = "SaveReminderFragment"
 }

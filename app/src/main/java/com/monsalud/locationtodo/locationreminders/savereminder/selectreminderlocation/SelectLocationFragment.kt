@@ -89,19 +89,19 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             _viewModel.latitude.value = latLong.latitude
             _viewModel.longitude.value = latLong.longitude
 
-            val geofenceList = mutableListOf<Geofence>()
-            geofenceList.add(
-                Geofence.Builder()
-                    .setRequestId(GEOFENCE_REQUEST_ID)
-                    .setCircularRegion(
-                        latLong.latitude,
-                        latLong.longitude,
-                        500f
-                    )
-                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-                    .build()
-            )
+//            val geofenceList = mutableListOf<Geofence>()
+//            geofenceList.add(
+//                Geofence.Builder()
+//                    .setRequestId(GEOFENCE_REQUEST_ID)
+//                    .setCircularRegion(
+//                        latLong.latitude,
+//                        latLong.longitude,
+//                        500f
+//                    )
+//                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+//                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+//                    .build()
+//            )
             findNavController().navigateUp()
 
         } else {

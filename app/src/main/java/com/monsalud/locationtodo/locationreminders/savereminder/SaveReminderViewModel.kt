@@ -31,11 +31,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val reminderSaved: LiveData<Boolean>
         get() = _reminderSaved
 
-    private val _locationsSettingsResponseTaskFinished = MutableLiveData<Boolean>(false)
-    val locationsSettingsResponseTaskFinished: LiveData<Boolean>
-        get() = _locationsSettingsResponseTaskFinished
-
-
     /**
      * Clear the live data objects to start fresh next time the view model gets called
      */
@@ -50,10 +45,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
 
     fun setReminderSaved(value: Boolean) {
         _reminderSaved.value = value
-    }
-
-    fun setLocationsSettingsResponseTaskFinished(value: Boolean) {
-        _locationsSettingsResponseTaskFinished.value = value
     }
 
     /**
