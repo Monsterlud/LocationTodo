@@ -10,9 +10,12 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.gms.common.api.ApiException
@@ -33,6 +36,10 @@ import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceUtils
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragment
+import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragmentDirections
+import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
+import com.monsalud.locationtodo.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment
+import org.koin.android.ext.android.inject
 
 private const val TAG = "RemindersActivity"
 
@@ -42,39 +49,54 @@ private const val TAG = "RemindersActivity"
 class RemindersActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRemindersBinding
-    private lateinit var navController: NavController
-    private val geofenceUtils = GeofenceUtils()
 
+    private val geofenceUtils = GeofenceUtils()
+    private val _viewModel: SaveReminderViewModel by inject()
+    private var geofenceSetupListener: GeofenceSetupListener? = null
+
+    private lateinit var navController: NavController
     private lateinit var geofencingClient: GeofencingClient
     private lateinit var geofencePendingIntent: PendingIntent
-    private var runningQOrLater: Boolean = false
     private var reminderDTO: ReminderDataItem? = null
+
     private var isGeofenceSetupPending = false
+    private var requestCodeCounter = 0
 
     interface GeofenceSetupListener {
         fun onGeofenceAdded(success: Boolean)
     }
 
-    private var geofenceSetupListener: GeofenceSetupListener? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        binding = ActivityRemindersBinding.inflate(layoutInflater)
 
-        runningQOrLater = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q
+        _viewModel.setRunningQOrLater(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
         geofencingClient = LocationServices.getGeofencingClient(this)
 
-        val intent = Intent(this, GeofenceBroadcastReceiver::class.java)
-        intent.action = SaveReminderFragment.ACTION_GEOFENCE_EVENT
-        val requestCode = System.currentTimeMillis().toInt()
-        geofencePendingIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
+        geofencePendingIntent = createGeofencePendingIntent()
 
-        binding = ActivityRemindersBinding.inflate(layoutInflater)
         setContentView(binding.root)
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        navController = findNavController(R.id.nav_host_fragment)
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        setupActionBarWithNavController(navController, appBarConfiguration)
+    }
+
+    private fun createGeofencePendingIntent(): PendingIntent {
+        val intent = Intent(applicationContext, GeofenceBroadcastReceiver::class.java)
+        intent.action = GeofenceConstants.ACTION_GEOFENCE_EVENT
+        val requestCode = requestCodeCounter++
+        val pendingIntent = PendingIntent.getBroadcast(
+            this,
+            requestCode,
+            intent,
+            PendingIntent.FLAG_MUTABLE
+        )
+        return pendingIntent
     }
 
     override fun onRequestPermissionsResult(
@@ -83,7 +105,8 @@ class RemindersActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d(TAG, "onRequestPermissionResult triggered")
+        Log.d(TAG, "***onRequestPermissionsResult() triggered")
+
         if (grantResults.isEmpty() ||
             grantResults[GeofenceConstants.LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
             (requestCode == GeofenceConstants.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
@@ -103,11 +126,7 @@ class RemindersActivity : AppCompatActivity() {
                     })
                 }.show()
         } else {
-            if (isGeofenceSetupPending) {
-                isGeofenceSetupPending = false
-                checkDeviceLocationSettingsAndStartGeofence(reminderDataItem = reminderDTO!!)
-
-            }
+            (supportFragmentManager.findFragmentById(R.id.selectLocationFragment) as? SelectLocationFragment)?.onLocationPermissionGranted()
         }
     }
 
@@ -115,21 +134,12 @@ class RemindersActivity : AppCompatActivity() {
         reminderDataItem: ReminderDataItem,
         listener: GeofenceSetupListener
     ) {
+        Log.d(
+            TAG,
+            "checkPermissionsAndStartGeofencing: ***checkpermissionsandstartgeofencing() triggered"
+        )
         this.reminderDTO = reminderDataItem
-        if (geofenceUtils.foregroundAndBackgroundLocationPermissionApproved(
-                this,
-                runningQOrLater
-            )
-        ) {
-            checkDeviceLocationSettingsAndStartGeofence(reminderDataItem = reminderDTO!!)
-        } else {
-            geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
-                this,
-                this,
-                runningQOrLater
-            )
-            isGeofenceSetupPending = true
-        }
+        checkDeviceLocationSettingsAndStartGeofence(reminderDataItem = reminderDTO!!)
     }
 
     fun checkDeviceLocationSettingsAndStartGeofence(
@@ -207,42 +217,40 @@ class RemindersActivity : AppCompatActivity() {
             .addGeofence(geofence)
             .build()
 
-        geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
-            addOnSuccessListener {
-                Toast.makeText(
-                    applicationContext,
-                    R.string.geofence_added,
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            addOnFailureListener { exception ->
-                if (exception is ApiException) {
-                    val statusCode = exception.statusCode
-                    val errorMessage = GeofenceStatusCodes.getStatusCodeString(statusCode)
-                    println("status code: ${exception.statusCode}")
-                    println("error message: $errorMessage")
+        geofencingClient.removeGeofences(geofencePendingIntent).run {
+            addOnCompleteListener {
+                geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent).run {
+                    addOnSuccessListener {
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.geofence_added,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    addOnFailureListener { exception ->
+                        if (exception is ApiException) {
+                            val statusCode = exception.statusCode
+                            val errorMessage = GeofenceStatusCodes.getStatusCodeString(statusCode)
+                            println("status code: ${exception.statusCode}")
+                            println("error message: $errorMessage")
+                        }
+                        Log.d(
+                            TAG,
+                            "addLocationReminderGeofence: Exception ${exception.message}, ${exception.localizedMessage}, ${exception.stackTrace}"
+                        )
+                        Toast.makeText(
+                            applicationContext,
+                            R.string.geofences_not_added,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        exception.message?.let {
+                            Log.w(TAG, exception.message!!)
+                        }
+                        geofenceSetupListener?.onGeofenceAdded(false)
+                    }
                 }
-                Log.d(TAG, "addLocationReminderGeofence: Exception ${exception.message}, ${exception.localizedMessage}, ${exception.stackTrace}")
-                Toast.makeText(
-                    applicationContext,
-                    R.string.geofences_not_added,
-                    Toast.LENGTH_SHORT
-                ).show()
-                exception.message?.let {
-                    Log.w(TAG, exception.message!!)
-                }
-                geofenceSetupListener?.onGeofenceAdded(false)
-
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        navController = findNavController(R.id.nav_host_fragment)
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
     }
 
     override fun onSupportNavigateUp(): Boolean {

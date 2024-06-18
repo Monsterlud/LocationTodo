@@ -33,7 +33,6 @@ private const val CHANNEL_ID = "GeofenceChannel"
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        Log.d(TAG, "***onReceive: GeofenceBroadcastReceiver triggered")
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         if (geofencingEvent != null) {
             if (geofencingEvent.hasError()) {
@@ -48,17 +47,12 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         // Test that the reported transition was of interest.
         if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
             Log.d(TAG, "Geofence Entered")
-            val fenceId = when {
-                geofencingEvent.triggeringGeofences?.isNotEmpty() == true ->
-                    geofencingEvent.triggeringGeofences?.get(0)?.requestId
-
-                else -> {
-                    Log.d(TAG, "No Geofence Trigger Found!")
-                    return
-                }
-            }
-
             val triggeringGeofences = geofencingEvent?.triggeringGeofences
+            val transitionDetails = getGeofenceTransitionDetails(
+                context,
+                geofenceTransition,
+                triggeringGeofences
+            )
 
             Log.d(TAG, "Geofence Event: Transition=${geofenceTransition}, Triggering Geofences=${triggeringGeofences?.joinToString { it.requestId }}")
 
@@ -76,14 +70,14 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 notificationManager.createNotificationChannel(channel)
 
                 notificationManager.sendGeofenceEnteredNotification(
-                    context, 1
+                    context, 1, transitionDetails
                 )
             }
         }
     }
 }
 
-    fun NotificationManager.sendGeofenceEnteredNotification(context: Context, foundIndex: Int) {
+    fun NotificationManager.sendGeofenceEnteredNotification(context: Context, foundIndex: Int, content: String) {
         val contentIntent = Intent(context, SaveReminderFragment::class.java)
         contentIntent.putExtra(GeofenceConstants.EXTRA_GEOFENCE_INDEX, foundIndex)
 
@@ -106,7 +100,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         // a custom message when a Geofence triggers.
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setContentTitle(context.getString(R.string.app_name))
-            .setContentText(context.getString(R.string.content_text))
+            .setContentText(content)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(contentPendingIntent)
             .setSmallIcon(R.drawable.map_small)
@@ -132,4 +126,3 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
         return "Geofence Transition: $geofenceTransitionString - Triggering Geofences: $triggeringGeofencesIdsString"
     }
-

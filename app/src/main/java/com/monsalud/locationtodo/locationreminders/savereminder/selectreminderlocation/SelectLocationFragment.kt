@@ -2,6 +2,7 @@ package com.monsalud.locationtodo.locationreminders.savereminder.selectreminderl
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
@@ -26,18 +27,20 @@ import com.google.android.material.snackbar.Snackbar
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.base.BaseFragment
 import com.monsalud.locationtodo.databinding.FragmentSelectLocationBinding
+import com.monsalud.locationtodo.locationreminders.RemindersActivity
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.REQUEST_LOCATION_PERMISSION
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceUtils
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
 import com.monsalud.locationtodo.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.Locale
 
 private const val TAG = "SelectLocationFragment"
-private const val REQUEST_LOCATION_PERMISSION = 1
-private const val GEOFENCE_REQUEST_ID = "100"
 
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override val _viewModel: SaveReminderViewModel by inject()
+    private val geofenceUtils by inject<GeofenceUtils>()
 
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
@@ -53,8 +56,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val layoutId = R.layout.fragment_select_location
         binding = DataBindingUtil.inflate(inflater, layoutId, container, false)
 
-        binding.viewModel = _viewModel
-
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
@@ -63,7 +64,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             childFragmentManager.findFragmentById(R.id.locationChooserMap) as SupportMapFragment
         supportMapFragment.getMapAsync(this)
 
+        binding.viewModel = _viewModel
         binding.btnSaveLocation.setOnClickListener {
+
             onLocationSelected()
         }
         return binding.root
@@ -88,22 +91,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             _viewModel.reminderSelectedLocationStr.value = locationString
             _viewModel.latitude.value = latLong.latitude
             _viewModel.longitude.value = latLong.longitude
-
-//            val geofenceList = mutableListOf<Geofence>()
-//            geofenceList.add(
-//                Geofence.Builder()
-//                    .setRequestId(GEOFENCE_REQUEST_ID)
-//                    .setCircularRegion(
-//                        latLong.latitude,
-//                        latLong.longitude,
-//                        500f
-//                    )
-//                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
-//                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-//                    .build()
-//            )
             findNavController().navigateUp()
-
         } else {
             Snackbar.make(
                 binding.root,
@@ -150,21 +138,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = true
+        setMapLongClick()
+        setPoiClick(googleMap)
+        enableMyLocation()
+        moveCameraToCurrentLocation()
+    }
 
-        if (ContextCompat.checkSelfPermission(
+    fun onLocationPermissionGranted() {
+        if (::map.isInitialized && ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
+            map.isMyLocationEnabled = true
             enableMyLocation()
-            setMapLongClick()
-            setPoiClick(map)
             moveCameraToCurrentLocation()
-        } else {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
         }
     }
 
@@ -207,6 +195,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
+
     private fun moveCameraToCurrentLocation() {
         val fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -214,11 +203,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
+            geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+                requireContext(),
+                requireActivity(),
+                _viewModel.runningQOrLater.value!!
+            )
+        } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
                     val zoomLevel = 15f
@@ -229,48 +224,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }.addOnFailureListener {
                 Toast.makeText(context, "Current Location Not Found", Toast.LENGTH_SHORT).show()
             }
-        } else {
-            ActivityCompat.requestPermissions(
-                requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
-            )
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                enableMyLocation()
-                moveCameraToCurrentLocation()
-                setMapLongClick()
-                setPoiClick(map)
-            } else {
-                Toast.makeText(context, "Location Permission Not Granted", Toast.LENGTH_SHORT)
-                    .show()
-            }
-        }
-    }
-
-    @SuppressLint("MissingPermission") // Suppress warning since permission is checked
     private fun enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(
+        if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
-            map.isMyLocationEnabled = true
-        } else {
-            ActivityCompat.requestPermissions(
+            geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+                requireContext(),
                 requireActivity(),
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_LOCATION_PERMISSION
+                _viewModel.runningQOrLater.value!!
             )
+        } else {
+            map.isMyLocationEnabled = true
         }
     }
 }

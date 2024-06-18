@@ -1,11 +1,14 @@
 package com.monsalud.locationtodo.locationreminders.savereminder
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -16,6 +19,7 @@ import com.monsalud.locationtodo.base.NavigationCommand
 import com.monsalud.locationtodo.databinding.FragmentSaveReminderBinding
 import com.monsalud.locationtodo.locationreminders.RemindersActivity
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceUtils
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
 import com.monsalud.locationtodo.utils.setDisplayHomeAsUpEnabled
 import kotlinx.coroutines.launch
@@ -27,8 +31,11 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var binding: FragmentSaveReminderBinding
 
     override val _viewModel: SaveReminderViewModel by inject()
+    private val geofenceUtils: GeofenceUtils by inject()
 
     lateinit var reminderDTO: ReminderDataItem
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,6 +45,7 @@ class SaveReminderFragment : BaseFragment() {
 
         setDisplayHomeAsUpEnabled(true)
         setHasOptionsMenu(true)
+
         binding.viewModel = _viewModel
         return binding.root
     }
@@ -46,8 +54,14 @@ class SaveReminderFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.lifecycleOwner = this
+
         binding.selectLocation.setOnClickListener {
             // Navigate to another fragment to get the user location
+            geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+                requireContext(),
+                requireActivity(),
+                _viewModel.runningQOrLater.value!!
+            )
             _viewModel.navigationCommand.postValue(
                 NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
             )
@@ -67,34 +81,47 @@ class SaveReminderFragment : BaseFragment() {
             }
             _viewModel.reminderSaved.observe(viewLifecycleOwner) { reminderSaved ->
                 if (reminderSaved) {
-                    (requireActivity() as? RemindersActivity)?.checkPermissionsAndStartGeofencing(
-                        reminderDTO,
-                        object : RemindersActivity.GeofenceSetupListener {
-                            override fun onGeofenceAdded(success: Boolean) {
-                                if (success) {
-                                    _viewModel.setReminderSaved(false)
-                                    findNavController().popBackStack()
-                                } else {
-                                    Snackbar.make(
-                                        binding.root,
-                                        R.string.geofences_not_added,
-                                        Snackbar.LENGTH_SHORT
-                                    ).show()
+                    if (geofenceUtils.foregroundAndBackgroundLocationPermissionApproved(
+                            requireContext(),
+                            _viewModel.runningQOrLater.value!!
+                        )
+                    ) {
+                        (requireActivity() as? RemindersActivity)?.checkPermissionsAndStartGeofencing(
+                            reminderDTO,
+                            object : RemindersActivity.GeofenceSetupListener {
+                                override fun onGeofenceAdded(success: Boolean) {
+                                    if (success) {
+                                        _viewModel.setReminderSaved(false)
+                                        findNavController().popBackStack()
+                                    } else {
+                                        Snackbar.make(
+                                            binding.root,
+                                            R.string.geofences_not_added,
+                                            Snackbar.LENGTH_SHORT
+                                        ).show()
+                                    }
                                 }
                             }
-                        }
-                    )
-
+                        )
+                    } else {
+                        geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+                            requireContext(),
+                            requireActivity(),
+                            _viewModel.runningQOrLater.value!!
+                        )
+                    }
                 }
             }
         }
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == GeofenceConstants.REQUEST_TURN_DEVICE_LOCATION_ON) {
-            (requireActivity() as? RemindersActivity)?.checkDeviceLocationSettingsAndStartGeofence(reminderDataItem = reminderDTO)
+            (requireActivity() as? RemindersActivity)?.checkDeviceLocationSettingsAndStartGeofence(
+                false,
+                reminderDataItem = reminderDTO
+            )
         }
     }
 
@@ -112,10 +139,5 @@ class SaveReminderFragment : BaseFragment() {
         super.onDestroy()
         // Make sure to clear the view model after destroy, as it's a single view model.
         _viewModel.onClear()
-    }
-
-    companion object {
-        internal const val ACTION_GEOFENCE_EVENT =
-            "SaveReminderFragment"
     }
 }

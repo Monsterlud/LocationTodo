@@ -31,6 +31,10 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val reminderSaved: LiveData<Boolean>
         get() = _reminderSaved
 
+    private val _runningQOrLater = MutableLiveData<Boolean>()
+    val runningQOrLater: LiveData<Boolean>
+        get() = _runningQOrLater
+
     /**
      * Clear the live data objects to start fresh next time the view model gets called
      */
@@ -45,6 +49,10 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
 
     fun setReminderSaved(value: Boolean) {
         _reminderSaved.value = value
+    }
+
+    fun setRunningQOrLater(value: Boolean) {
+        _runningQOrLater.value = value
     }
 
     /**

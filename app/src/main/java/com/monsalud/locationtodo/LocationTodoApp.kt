@@ -6,6 +6,7 @@ import com.monsalud.locationtodo.authentication.AuthenticationViewModel
 import com.monsalud.locationtodo.locationreminders.data.ReminderDataSource
 import com.monsalud.locationtodo.locationreminders.data.local.LocalDB
 import com.monsalud.locationtodo.locationreminders.data.local.RemindersLocalRepository
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceUtils
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceViewModel
 import com.monsalud.locationtodo.locationreminders.reminderslist.RemindersListViewModel
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
@@ -50,6 +51,7 @@ class LocationTodoApp : Application() {
 			}
 			single { RemindersLocalRepository(get()) as ReminderDataSource }
 			single { LocalDB.createRemindersDao(this@LocationTodoApp) }
+			single { GeofenceUtils() }
 		}
 
 		startKoin {
