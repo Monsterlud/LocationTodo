@@ -12,4 +12,5 @@ object GeofenceConstants {
     val ACTION_GEOFENCE_EVENT = "GeofenceConstants.GeofenceEvent"
     val REQUEST_LOCATION_PERMISSION = 1
     val GEOFENCE_REQUEST_ID = "100"
+    val EXTRA_REQUEST_ID = "REQUEST_ID"
 }

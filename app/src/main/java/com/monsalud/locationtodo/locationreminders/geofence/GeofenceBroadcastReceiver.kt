@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.monsalud.locationtodo.R
+import com.monsalud.locationtodo.locationreminders.ReminderDescriptionActivity
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragment
 
 /**
@@ -54,7 +55,10 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 triggeringGeofences
             )
 
-            Log.d(TAG, "Geofence Event: Transition=${geofenceTransition}, Triggering Geofences=${triggeringGeofences?.joinToString { it.requestId }}")
+            Log.d(
+                TAG,
+                "Geofence Event: Transition=${geofenceTransition}, Triggering Geofences=${triggeringGeofences?.joinToString { it.requestId }}"
+            )
 
             val notificationManager = ContextCompat.getSystemService(
                 context,
@@ -70,59 +74,67 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
                 notificationManager.createNotificationChannel(channel)
 
                 notificationManager.sendGeofenceEnteredNotification(
-                    context, 1, transitionDetails
+                    context, 1, transitionDetails, triggeringGeofences
                 )
             }
         }
     }
 }
 
-    fun NotificationManager.sendGeofenceEnteredNotification(context: Context, foundIndex: Int, content: String) {
-        val contentIntent = Intent(context, SaveReminderFragment::class.java)
-        contentIntent.putExtra(GeofenceConstants.EXTRA_GEOFENCE_INDEX, foundIndex)
-
-        val contentPendingIntent = PendingIntent.getActivity(
-            context,
-            NOTIFICATION_ID,
-            contentIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val mapImage = BitmapFactory.decodeResource(
-            context.resources,
-            R.drawable.map_small
-        )
-        val bigPicStyle = NotificationCompat.BigPictureStyle()
-            .bigPicture(mapImage)
-            .bigLargeIcon(null as Bitmap?)
-
-        // We use the name resource ID from the LANDMARK_DATA along with content_text to create
-        // a custom message when a Geofence triggers.
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setContentTitle(context.getString(R.string.app_name))
-            .setContentText(content)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(contentPendingIntent)
-            .setSmallIcon(R.drawable.map_small)
-            .setStyle(bigPicStyle)
-            .setLargeIcon(mapImage)
-
-        notify(NOTIFICATION_ID, builder.build())
+fun NotificationManager.sendGeofenceEnteredNotification(
+    context: Context,
+    foundIndex: Int,
+    content: String,
+    triggeredGeofences: List<Geofence>?
+) {
+    val contentIntent = Intent(context, ReminderDescriptionActivity::class.java).apply {
+        putExtra(GeofenceConstants.EXTRA_GEOFENCE_INDEX, foundIndex)
+        putExtra(GeofenceConstants.EXTRA_REQUEST_ID, triggeredGeofences?.first()?.requestId)
     }
 
-    private fun getGeofenceTransitionDetails(
-        context: Context,
-        geofenceTransition: Int,
-        triggeringGeofences: List<Geofence>?
-    ): String {
-        val geofenceTransitionString = when (geofenceTransition) {
-            Geofence.GEOFENCE_TRANSITION_ENTER -> "ENTER"
-            Geofence.GEOFENCE_TRANSITION_EXIT -> "EXIT"
-            else -> "UNKNOWN"
-        }
+    val contentPendingIntent = PendingIntent.getActivity(
+        context,
+        NOTIFICATION_ID,
+        contentIntent,
+        PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
 
-        val triggeringGeofencesIdsList = triggeringGeofences?.map { it.requestId } ?: emptyList()
-        val triggeringGeofencesIdsString = triggeringGeofencesIdsList.joinToString(", ")
+    val mapImage = BitmapFactory.decodeResource(
+        context.resources,
+        R.drawable.map_small
+    )
+    val bigPicStyle = NotificationCompat.BigPictureStyle()
+        .bigPicture(mapImage)
+        .bigLargeIcon(null as Bitmap?)
 
-        return "Geofence Transition: $geofenceTransitionString - Triggering Geofences: $triggeringGeofencesIdsString"
+    // We use the name resource ID from the LANDMARK_DATA along with content_text to create
+    // a custom message when a Geofence triggers.
+    val builder = NotificationCompat.Builder(context, CHANNEL_ID)
+        .setContentTitle(context.getString(R.string.app_name))
+        .setContentText(content)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setContentIntent(contentPendingIntent)
+        .setSmallIcon(R.drawable.map_small)
+        .setStyle(bigPicStyle)
+        .setLargeIcon(mapImage)
+        .setAutoCancel(true)
+
+    notify(NOTIFICATION_ID, builder.build())
+}
+
+private fun getGeofenceTransitionDetails(
+    context: Context,
+    geofenceTransition: Int,
+    triggeringGeofences: List<Geofence>?
+): String {
+    val geofenceTransitionString = when (geofenceTransition) {
+        Geofence.GEOFENCE_TRANSITION_ENTER -> "ENTER"
+        Geofence.GEOFENCE_TRANSITION_EXIT -> "EXIT"
+        else -> "UNKNOWN"
     }
+
+    val triggeringGeofencesIdsList = triggeringGeofences?.map { it.requestId } ?: emptyList()
+    val triggeringGeofencesIdsString = triggeringGeofencesIdsList.joinToString(", ")
+
+    return "Geofence Transition: $geofenceTransitionString - Triggering Geofences: $triggeringGeofencesIdsString"
+}

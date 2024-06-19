@@ -16,6 +16,7 @@ import com.monsalud.locationtodo.locationreminders.data.dto.Result
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private const val TAG = "SaveReminderViewModel"
 class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSource) :
@@ -93,14 +94,23 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
 
 
 
-    fun getReminder(id: String) : LiveData<Result<ReminderDTO>> {
+    fun getReminder(id: String): LiveData<Result<ReminderDTO>> {
         return liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-        showLoading.value = true
+            // Switch to the main thread to update showLoading
+            withContext(Dispatchers.Main) {
+                showLoading.value = true
+            }
+
             try {
-                val reminderDTO = dataSource.getReminder(id)
-                emit(reminderDTO)
+                val reminderResult = dataSource.getReminder(id)
+                emit(reminderResult)
             } catch (e: Exception) {
-                emit(Result.Error(e.message))
+                emit(Result.Error(e.message ?: "Unknown error")) // Provide a default error message
+            } finally {
+                // Switch back to the main thread to update showLoading
+                withContext(Dispatchers.Main) {
+                    showLoading.value = false
+                }
             }
         }
     }

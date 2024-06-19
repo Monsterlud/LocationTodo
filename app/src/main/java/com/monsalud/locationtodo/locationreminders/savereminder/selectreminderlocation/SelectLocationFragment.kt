@@ -66,7 +66,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         binding.viewModel = _viewModel
         binding.btnSaveLocation.setOnClickListener {
-
             onLocationSelected()
         }
         return binding.root

@@ -89,6 +89,7 @@ class RemindersActivity : AppCompatActivity() {
     private fun createGeofencePendingIntent(): PendingIntent {
         val intent = Intent(applicationContext, GeofenceBroadcastReceiver::class.java)
         intent.action = GeofenceConstants.ACTION_GEOFENCE_EVENT
+
         val requestCode = requestCodeCounter++
         val pendingIntent = PendingIntent.getBroadcast(
             this,
@@ -97,37 +98,6 @@ class RemindersActivity : AppCompatActivity() {
             PendingIntent.FLAG_MUTABLE
         )
         return pendingIntent
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        Log.d(TAG, "***onRequestPermissionsResult() triggered")
-
-        if (grantResults.isEmpty() ||
-            grantResults[GeofenceConstants.LOCATION_PERMISSION_INDEX] == PackageManager.PERMISSION_DENIED ||
-            (requestCode == GeofenceConstants.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE &&
-                    grantResults[GeofenceConstants.BACKGROUND_LOCATION_PERMISSION_INDEX] ==
-                    PackageManager.PERMISSION_DENIED)
-        ) {
-            Snackbar.make(
-                binding.root,
-                R.string.permission_denied_explanation,
-                Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction(R.string.settings) {
-                    startActivity(Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    })
-                }.show()
-        } else {
-            (supportFragmentManager.findFragmentById(R.id.selectLocationFragment) as? SelectLocationFragment)?.onLocationPermissionGranted()
-        }
     }
 
     fun checkPermissionsAndStartGeofencing(

@@ -2,8 +2,11 @@ package com.monsalud.locationtodo.locationreminders
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -11,6 +14,13 @@ import androidx.databinding.DataBindingUtil
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.ActivityReminderDescriptionBinding
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
+import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragment
+import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
+import org.koin.android.ext.android.inject
+import com.monsalud.locationtodo.locationreminders.data.dto.Result
+import com.monsalud.locationtodo.locationreminders.data.dto.toReminderDataItem
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants
+
 
 /**
  * Activity that displays the reminder details after the user clicks on the notification
@@ -18,6 +28,8 @@ import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataIte
 class ReminderDescriptionActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityReminderDescriptionBinding
+
+    private val _viewModel by inject<SaveReminderViewModel>()
 
     companion object {
         private const val EXTRA_ReminderDataItem = "EXTRA_ReminderDataItem"
@@ -33,14 +45,34 @@ class ReminderDescriptionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val layoutId = R.layout.activity_reminder_description
+
         binding = DataBindingUtil.setContentView(this, layoutId)
         binding.lifecycleOwner = this
 
-        val reminderDataItem = intent.getSerializableExtra(EXTRA_ReminderDataItem) as ReminderDataItem
-        binding.reminderDataItem = reminderDataItem
+        val reminderDataItemFromList =
+            intent.getSerializableExtra(EXTRA_ReminderDataItem) as? ReminderDataItem
 
+        if (reminderDataItemFromList != null) {
+            binding.reminderDataItem = reminderDataItemFromList
+        } else {
+            val reminderDataIdFromNotification = intent.getStringExtra(GeofenceConstants.EXTRA_REQUEST_ID)
+            if (reminderDataIdFromNotification != null) {
+                _viewModel.getReminder(reminderDataIdFromNotification).observe(this) { result ->
+                    when (result) {
+                        is Result.Success -> {
+                            binding.reminderDataItem = result.data.toReminderDataItem()
+                        }
+
+                        is Result.Error -> {
+                            Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } else {
+                Toast.makeText(this, "No reminder data provided", Toast.LENGTH_SHORT).show()
+            }
+        }
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
     }
 
     override fun getSupportActionBar(): ActionBar? {
@@ -53,6 +85,7 @@ class ReminderDescriptionActivity : AppCompatActivity() {
                 onBackPressed()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
