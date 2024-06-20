@@ -19,8 +19,6 @@ import com.monsalud.locationtodo.utils.setup
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-private const val TAG = "ReminderListFragment"
-
 class ReminderListFragment : BaseFragment() {
 
     private lateinit var binding: FragmentRemindersBinding
@@ -99,5 +97,9 @@ class ReminderListFragment : BaseFragment() {
         super.onCreateOptionsMenu(menu, inflater)
         // Display logout as menu item
         inflater.inflate(R.menu.main_menu, menu)
+    }
+
+    companion object {
+        private const val TAG = "ReminderListFragment"
     }
 }

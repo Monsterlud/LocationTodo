@@ -2,15 +2,25 @@ package com.monsalud.locationtodo.locationreminders.data
 
 import com.monsalud.locationtodo.locationreminders.data.dto.ReminderDTO
 import com.monsalud.locationtodo.locationreminders.data.dto.Result
+import kotlinx.coroutines.delay
 
 class FakeRemindersLocalRepository(
-    var reminders: MutableList<ReminderDTO> = mutableListOf()
+    private var reminders: MutableList<ReminderDTO> = mutableListOf(),
+    private var shouldReturnError: Boolean = false,
+    var check_loading: Boolean = false
 ) : ReminderDataSource {
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        return try {
-            Result.Success(reminders.toList())
-        } catch (e: Exception) {
-            Result.Error(e.message ?: "An error occurred while fetching reminders")
+        if (check_loading) {
+            delay(100)
+        }
+        return if (shouldReturnError) {
+            Result.Error("Error fetching reminders")
+        } else {
+            try {
+                Result.Success(reminders.toList())
+            } catch (e: Exception) {
+                Result.Error(e.message ?: "An error occurred while fetching reminders")
+            }
         }
     }
 
@@ -30,4 +40,13 @@ class FakeRemindersLocalRepository(
     override suspend fun deleteAllReminders() {
         reminders.clear()
     }
+
+    fun setReturnError(value: Boolean) {
+        shouldReturnError = value
+    }
+
+    fun setCheckLoading(value: Boolean) {
+        check_loading = value
+    }
+
 }

@@ -41,8 +41,6 @@ import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderView
 import com.monsalud.locationtodo.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment
 import org.koin.android.ext.android.inject
 
-private const val TAG = "RemindersActivity"
-
 /**
  * The RemindersActivity that holds the reminders fragments
  */
@@ -226,6 +224,10 @@ class RemindersActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         navController.navigateUp() || super.onSupportNavigateUp()
         return true
+    }
+
+    companion object {
+        private const val TAG = "RemindersActivity"
     }
 }
 

@@ -14,9 +14,6 @@ import com.monsalud.locationtodo.databinding.FragmentAuthenticationBinding
 import com.monsalud.locationtodo.locationreminders.RemindersActivity
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-private const val TAG = "AuthenticationActivity"
-private const val SIGN_IN_RESULT_CODE = 1001
-
 class AuthenticationFragment : BaseFragment() {
     private lateinit var binding: FragmentAuthenticationBinding
     override val _viewModel: AuthenticationViewModel by viewModel()
@@ -87,5 +84,10 @@ class AuthenticationFragment : BaseFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+    }
+
+    companion object {
+        private const val TAG = "AuthenticationActivity"
+        private const val SIGN_IN_RESULT_CODE = 1001
     }
 }

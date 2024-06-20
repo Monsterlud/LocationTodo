@@ -35,8 +35,6 @@ import com.monsalud.locationtodo.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.Locale
 
-private const val TAG = "SelectLocationFragment"
-
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override val _viewModel: SaveReminderViewModel by inject()
@@ -243,5 +241,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         } else {
             map.isMyLocationEnabled = true
         }
+    }
+
+    companion object {
+        private const val TAG = "SelectLocationFragment"
     }
 }

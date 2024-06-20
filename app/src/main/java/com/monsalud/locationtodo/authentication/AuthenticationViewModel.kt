@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.lifecycle.map
 import com.monsalud.locationtodo.base.BaseViewModel
 
-private const val TAG = "AuthenticationViewModel"
 class AuthenticationViewModel(
     app: Application
 ) : BaseViewModel(app) {
@@ -23,4 +22,7 @@ class AuthenticationViewModel(
         }
     }
 
+    companion object {
+        private const val TAG = "AuthenticationViewModel"
+    }
 }

@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 
-private const val TAG = "FirebaseUserLiveData"
 class FirebaseUserLiveData : LiveData<FirebaseUser?>() {
 
     private val firebaseAuth = FirebaseAuth.getInstance()
@@ -25,4 +24,7 @@ class FirebaseUserLiveData : LiveData<FirebaseUser?>() {
         Log.i(TAG, "*** onInactive ***")
     }
 
+    companion object {
+        private const val TAG = "FirebaseUserLiveData"
+    }
 }

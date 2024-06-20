@@ -30,8 +30,6 @@ import com.monsalud.locationtodo.utils.setDisplayHomeAsUpEnabled
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
-private const val TAG = "SaveReminderFragment"
-
 class SaveReminderFragment : BaseFragment() {
     private lateinit var binding: FragmentSaveReminderBinding
 
@@ -66,104 +64,110 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
-        override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
-        ): View {
-            binding =
-                DataBindingUtil.inflate(inflater, R.layout.fragment_save_reminder, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_save_reminder, container, false)
 
-            setDisplayHomeAsUpEnabled(true)
-            setHasOptionsMenu(true)
+        setDisplayHomeAsUpEnabled(true)
+        setHasOptionsMenu(true)
 
-            binding.viewModel = _viewModel
-            return binding.root
+        binding.viewModel = _viewModel
+        return binding.root
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.lifecycleOwner = this
+
+        binding.selectLocation.setOnClickListener {
+            // Navigate to another fragment to get the user location
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                )
+            )
         }
 
-        @RequiresApi(Build.VERSION_CODES.Q)
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            super.onViewCreated(view, savedInstanceState)
+        binding.saveReminder.setOnClickListener {
+            reminderDTO = ReminderDataItem(
+                binding.reminderTitle.text.toString(),
+                binding.reminderDescription.text.toString(),
+                _viewModel.reminderSelectedLocationStr.value,
+                _viewModel.latitude.value,
+                _viewModel.longitude.value
+            )
 
-            binding.lifecycleOwner = this
-
-            binding.selectLocation.setOnClickListener {
-                // Navigate to another fragment to get the user location
-               requestPermissionLauncher.launch(arrayOf(
-                   Manifest.permission.ACCESS_FINE_LOCATION,
-                   Manifest.permission.ACCESS_BACKGROUND_LOCATION
-               ))
+            viewLifecycleOwner.lifecycleScope.launch {
+                _viewModel.validateAndSaveReminder(reminderDTO)
             }
-
-            binding.saveReminder.setOnClickListener {
-                reminderDTO = ReminderDataItem(
-                    binding.reminderTitle.text.toString(),
-                    binding.reminderDescription.text.toString(),
-                    _viewModel.reminderSelectedLocationStr.value,
-                    _viewModel.latitude.value,
-                    _viewModel.longitude.value
-                )
-
-                viewLifecycleOwner.lifecycleScope.launch {
-                    _viewModel.validateAndSaveReminder(reminderDTO)
-                }
-                _viewModel.reminderSaved.observe(viewLifecycleOwner) { reminderSaved ->
-                    if (reminderSaved) {
-                        if (geofenceUtils.foregroundAndBackgroundLocationPermissionApproved(
-                                requireContext(),
-                                _viewModel.runningQOrLater.value!!
-                            )
-                        ) {
-                            (requireActivity() as? RemindersActivity)?.checkPermissionsAndStartGeofencing(
-                                reminderDTO,
-                                object : RemindersActivity.GeofenceSetupListener {
-                                    override fun onGeofenceAdded(success: Boolean) {
-                                        if (success) {
-                                            _viewModel.setReminderSaved(false)
-                                            findNavController().popBackStack()
-                                        } else {
-                                            Snackbar.make(
-                                                binding.root,
-                                                R.string.geofences_not_added,
-                                                Snackbar.LENGTH_SHORT
-                                            ).show()
-                                        }
+            _viewModel.reminderSaved.observe(viewLifecycleOwner) { reminderSaved ->
+                if (reminderSaved) {
+                    if (geofenceUtils.foregroundAndBackgroundLocationPermissionApproved(
+                            requireContext(),
+                            _viewModel.runningQOrLater.value!!
+                        )
+                    ) {
+                        (requireActivity() as? RemindersActivity)?.checkPermissionsAndStartGeofencing(
+                            reminderDTO,
+                            object : RemindersActivity.GeofenceSetupListener {
+                                override fun onGeofenceAdded(success: Boolean) {
+                                    if (success) {
+                                        _viewModel.setReminderSaved(false)
+                                        findNavController().popBackStack()
+                                    } else {
+                                        Snackbar.make(
+                                            binding.root,
+                                            R.string.geofences_not_added,
+                                            Snackbar.LENGTH_SHORT
+                                        ).show()
                                     }
                                 }
-                            )
-                        } else {
-                            geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
-                                requireContext(),
-                                requireActivity(),
-                                _viewModel.runningQOrLater.value!!
-                            )
-                        }
+                            }
+                        )
+                    } else {
+                        geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+                            requireContext(),
+                            requireActivity(),
+                            _viewModel.runningQOrLater.value!!
+                        )
                     }
                 }
             }
         }
+    }
 
-        override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-            super.onActivityResult(requestCode, resultCode, data)
-            if (requestCode == GeofenceConstants.REQUEST_TURN_DEVICE_LOCATION_ON) {
-                (requireActivity() as? RemindersActivity)?.checkDeviceLocationSettingsAndStartGeofence(
-                    false,
-                    reminderDataItem = reminderDTO
-                )
-            }
-        }
-
-        override fun onOptionsItemSelected(item: MenuItem): Boolean {
-            return when (item.itemId) {
-                android.R.id.home -> {
-                    findNavController().navigateUp()
-                }
-
-                else -> super.onOptionsItemSelected(item)
-            }
-        }
-
-        override fun onDestroy() {
-            super.onDestroy()
-            // Make sure to clear the view model after destroy, as it's a single view model.
-            _viewModel.onClear()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == GeofenceConstants.REQUEST_TURN_DEVICE_LOCATION_ON) {
+            (requireActivity() as? RemindersActivity)?.checkDeviceLocationSettingsAndStartGeofence(
+                false,
+                reminderDataItem = reminderDTO
+            )
         }
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                findNavController().navigateUp()
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // Make sure to clear the view model after destroy, as it's a single view model.
+        _viewModel.onClear()
+    }
+
+    companion object {
+        private const val TAG = "SaveReminderFragment"
+    }
+}

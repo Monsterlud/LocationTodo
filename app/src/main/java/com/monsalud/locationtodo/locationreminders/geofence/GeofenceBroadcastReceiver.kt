@@ -16,6 +16,10 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingEvent
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.locationreminders.ReminderDescriptionActivity
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.CHANNEL_ID
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.EXTRA_GEOFENCE_INDEX
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.EXTRA_REQUEST_ID
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.NOTIFICATION_ID
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragment
 
 /**
@@ -28,8 +32,7 @@ import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFrag
  *
  */
 
-private const val NOTIFICATION_ID = 33
-private const val CHANNEL_ID = "GeofenceChannel"
+
 
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
 
@@ -68,7 +71,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val name = context.getString(R.string.channel_name)
                 val importance = NotificationManager.IMPORTANCE_HIGH
-                val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
+                val channel = NotificationChannel(GeofenceConstants.CHANNEL_ID, name, importance).apply {
                     description = context.getString(R.string.channel_description)
                 }
                 notificationManager.createNotificationChannel(channel)
@@ -88,8 +91,8 @@ fun NotificationManager.sendGeofenceEnteredNotification(
     triggeredGeofences: List<Geofence>?
 ) {
     val contentIntent = Intent(context, ReminderDescriptionActivity::class.java).apply {
-        putExtra(GeofenceConstants.EXTRA_GEOFENCE_INDEX, foundIndex)
-        putExtra(GeofenceConstants.EXTRA_REQUEST_ID, triggeredGeofences?.first()?.requestId)
+        putExtra(EXTRA_GEOFENCE_INDEX, foundIndex)
+        putExtra(EXTRA_REQUEST_ID, triggeredGeofences?.first()?.requestId)
     }
 
     val contentPendingIntent = PendingIntent.getActivity(

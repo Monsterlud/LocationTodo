@@ -2,19 +2,15 @@ package com.monsalud.locationtodo.locationreminders
 
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.ActivityReminderDescriptionBinding
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
-import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragment
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
 import org.koin.android.ext.android.inject
 import com.monsalud.locationtodo.locationreminders.data.dto.Result
