@@ -10,12 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.ActivityReminderDescriptionBinding
-import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
-import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
-import org.koin.android.ext.android.inject
 import com.monsalud.locationtodo.locationreminders.data.dto.Result
 import com.monsalud.locationtodo.locationreminders.data.dto.toReminderDataItem
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants
+import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
+import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
+import org.koin.android.ext.android.inject
 
 
 /**
@@ -28,7 +28,7 @@ class ReminderDescriptionActivity : AppCompatActivity() {
     private val _viewModel by inject<SaveReminderViewModel>()
 
     companion object {
-        private const val EXTRA_ReminderDataItem = "EXTRA_ReminderDataItem"
+        const val EXTRA_ReminderDataItem = "EXTRA_ReminderDataItem"
 
         // Receive the reminder object after the user clicks on the notification
         fun newIntent(context: Context, reminderDataItem: ReminderDataItem): Intent {
