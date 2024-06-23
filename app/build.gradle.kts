@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.annotation)
+    implementation(libs.androidx.espresso.idling.resource)
     kapt(libs.androidx.room.compiler)
 
     // Maps & Geofencing

@@ -2,6 +2,7 @@ package com.monsalud.locationtodo.locationreminders.reminderslist
 
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.monsalud.locationtodo.locationreminders.LiveDataTestUtil.getOrAwaitValue
 import com.monsalud.locationtodo.locationreminders.data.FakeRemindersLocalRepository
 import com.monsalud.locationtodo.locationreminders.data.dto.ReminderDTO
 import kotlinx.coroutines.Dispatchers
@@ -18,8 +19,8 @@ import org.mockito.Mockito.mock
 
 class RemindersListViewModelTest {
 
-    lateinit var repository: FakeRemindersLocalRepository
-    lateinit var context: Application
+    private lateinit var repository: FakeRemindersLocalRepository
+    private lateinit var context: Application
 
     private lateinit var viewModel: RemindersListViewModel
 
@@ -62,9 +63,12 @@ class RemindersListViewModelTest {
         // WHEN loadReminders is called
         viewModel.loadReminders()
 
+        val showNoData = viewModel.showNoData.getOrAwaitValue()
+        val remindersList = viewModel.remindersList.getOrAwaitValue()
+
         // THEN showNoData should be false & the size of remindersList should be 4
-        assert(viewModel.showNoData.value == false)
-        assert(viewModel.remindersList.value?.size == 4)
+        assert(false == showNoData)
+        assert(4 == remindersList.size)
     }
 
     @Test
@@ -75,8 +79,10 @@ class RemindersListViewModelTest {
         // WHEN loadReminders is called
         viewModel.loadReminders()
 
+        val showSnackBar = viewModel.showSnackBar.getOrAwaitValue()
+
         // THEN showSnackBar should show the message
-        assert("Error fetching reminders" == viewModel.showSnackBar.value)
+        assert("Error fetching reminders" == showSnackBar)
     }
 
     @Test
@@ -92,9 +98,12 @@ class RemindersListViewModelTest {
         viewModel.deleteAllReminders()
         viewModel.loadReminders()
 
+        val remindersList = viewModel.remindersList.getOrAwaitValue()
+        val showNoData = viewModel.showNoData.getOrAwaitValue()
+
         // THEN showNoData should be true and the size of remindersList should be 0
-        assert(viewModel.remindersList.value?.size == 0)
-        assert(viewModel.showNoData.value == true)
+        assert(remindersList.isEmpty())
+        assert(true == showNoData)
     }
 
     @Test
@@ -106,9 +115,10 @@ class RemindersListViewModelTest {
         // WHEN loadReminders is called
         viewModel.loadReminders()
 
+        val showLoading = viewModel.showLoading.getOrAwaitValue()
+
         // THEN showLoading should be true
-        val showLoading = viewModel.showLoading.value!!
-        assert(showLoading)
+        assert(true == showLoading)
     }
 
     private suspend fun populateRemindersList() {

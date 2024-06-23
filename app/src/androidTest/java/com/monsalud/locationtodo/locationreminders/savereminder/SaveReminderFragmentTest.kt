@@ -10,8 +10,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.rule.GrantPermissionRule
+import com.monsalud.locationtodo.FakeRemindersLocalRepository
 import com.monsalud.locationtodo.R
-import com.monsalud.locationtodo.locationreminders.data.FakeRemindersLocalRepository
 import com.monsalud.locationtodo.locationreminders.data.ReminderDataSource
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
