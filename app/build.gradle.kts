@@ -18,7 +18,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.monsalud.locationtodo.InstrumentedTestRunner"
+
     }
 
     buildTypes {
@@ -106,8 +107,10 @@ dependencies {
     testImplementation(libs.androidx.test.core.ktx)
     testImplementation(libs.androidx.test.ext)
     testImplementation(libs.androidx.test.rules)
+    testImplementation(libs.koinTest)
 
     // Instrumentation Testing (Android)
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.contrib)
@@ -122,4 +125,5 @@ dependencies {
     androidTestImplementation(libs.robolectric.annotations)
     androidTestImplementation(libs.mockito)
     androidTestImplementation(libs.dexmaker)
+    androidTestImplementation(libs.koinTest)
 }

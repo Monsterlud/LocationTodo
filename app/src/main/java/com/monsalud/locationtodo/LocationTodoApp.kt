@@ -1,7 +1,6 @@
 package com.monsalud.locationtodo
 
 import android.app.Application
-import com.google.firebase.auth.FirebaseAuth
 import com.monsalud.locationtodo.authentication.AuthenticationViewModel
 import com.monsalud.locationtodo.locationreminders.data.ReminderDataSource
 import com.monsalud.locationtodo.locationreminders.data.local.LocalDB
@@ -16,6 +15,9 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 
 class LocationTodoApp : Application() {
+
+	val remindersLocalRepository: RemindersLocalRepository
+		get() = ServiceLocator.provideRemindersLocalRepository(this)
 
 	override fun onCreate() {
 		super.onCreate()
@@ -49,7 +51,7 @@ class LocationTodoApp : Application() {
 					get() as ReminderDataSource
 				)
 			}
-			single { RemindersLocalRepository(get()) as ReminderDataSource }
+			single<ReminderDataSource> { RemindersLocalRepository(get()) }
 			single { LocalDB.createRemindersDao(this@LocationTodoApp) }
 			single { GeofenceUtils() }
 		}

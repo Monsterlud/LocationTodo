@@ -24,7 +24,7 @@ lifecycle = "2.2.0-alpha02"
 preference = "1.1.0-rc01"
 lifecycleExtensions = "2.2.0"
 room = "2.6.1"
-koin = "3.4.0"
+koin = "3.5.6"
 playLocation = "21.3.0"
 playMaps = "18.2.0"
 archTesting = "2.2.0"
@@ -67,6 +67,7 @@ androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation
 
 # Koin
 koin = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koinTest = { group = "io.insert-koin", name = "koin-test", version.ref = "koin" }
 
 # Room
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }

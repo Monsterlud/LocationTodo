@@ -4,18 +4,12 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.google.android.gms.common.api.ApiException
@@ -28,17 +22,13 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.Snackbar
-import com.monsalud.locationtodo.BuildConfig
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.ActivityRemindersBinding
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceUtils
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
-import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragment
-import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderFragmentDirections
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
-import com.monsalud.locationtodo.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment
 import org.koin.android.ext.android.inject
 
 /**
