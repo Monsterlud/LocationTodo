@@ -6,6 +6,9 @@
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
+/.idea/androidTestResultsUserPreferences.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
