@@ -3,14 +3,14 @@ package com.monsalud.locationtodo.locationreminders.reminderslist
 import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.monsalud.locationtodo.locationreminders.LiveDataTestUtil.getOrAwaitValue
+import com.monsalud.locationtodo.locationreminders.MainCoroutineRule
 import com.monsalud.locationtodo.locationreminders.data.FakeRemindersLocalRepository
 import com.monsalud.locationtodo.locationreminders.data.dto.ReminderDTO
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -21,27 +21,19 @@ class RemindersListViewModelTest {
 
     private lateinit var repository: FakeRemindersLocalRepository
     private lateinit var context: Application
-
     private lateinit var viewModel: RemindersListViewModel
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    private val testDispatcher = TestCoroutineDispatcher()
+    @get:Rule
+    val mainCoroutineRule = MainCoroutineRule()
 
     @Before
     fun setup() {
-        Dispatchers.setMain(testDispatcher)
-
         context = mock(Application::class.java)
         repository = FakeRemindersLocalRepository()
         viewModel = RemindersListViewModel(context, repository)
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-        testDispatcher.cleanupTestCoroutines()
     }
 
     @Test
@@ -119,6 +111,27 @@ class RemindersListViewModelTest {
 
         // THEN showLoading should be true
         assert(true == showLoading)
+    }
+
+    @Test
+    fun loadReminders_shouldShowLoading_shouldNotShowLoading() = runTest  {
+
+        populateRemindersList()
+
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        Dispatchers.setMain(testDispatcher)
+
+        try {
+        viewModel.loadReminders()
+        assert(viewModel.showLoading.value == true)
+        testScheduler.advanceUntilIdle()
+
+        assert(viewModel.showLoading.value == false)
+        assert(viewModel.remindersList.value?.isNotEmpty() == true)
+        assert(viewModel.showNoData.value == false)
+        } finally {
+            Dispatchers.resetMain()
+        }
     }
 
     private suspend fun populateRemindersList() {

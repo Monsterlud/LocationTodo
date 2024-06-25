@@ -7,10 +7,10 @@ import kotlinx.coroutines.delay
 class FakeRemindersLocalRepository(
     private var reminders: MutableList<ReminderDTO> = mutableListOf(),
     private var shouldReturnError: Boolean = false,
-    var check_loading: Boolean = false
+    private var checkLoading: Boolean = false
 ) : ReminderDataSource {
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
-        if (check_loading) {
+        if (checkLoading) {
             delay(100)
         }
         return if (shouldReturnError) {
@@ -46,7 +46,7 @@ class FakeRemindersLocalRepository(
     }
 
     fun setCheckLoading(value: Boolean) {
-        check_loading = value
+        checkLoading = value
     }
 
 }
