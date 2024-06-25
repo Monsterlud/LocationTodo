@@ -4,25 +4,13 @@ import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.provider.Settings
 import android.util.Log
-import android.view.View
-import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat.startActivity
-import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.material.snackbar.Snackbar
 import com.monsalud.locationtodo.R
-import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.REQUEST_TURN_DEVICE_LOCATION_ON
 
 const val TAG = "GeofenceUtils"
 

@@ -1,20 +1,21 @@
 package com.monsalud.locationtodo.locationreminders.savereminder.selectreminderlocation
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.findNavController
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -27,8 +28,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.base.BaseFragment
 import com.monsalud.locationtodo.databinding.FragmentSelectLocationBinding
-import com.monsalud.locationtodo.locationreminders.RemindersActivity
-import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.REQUEST_LOCATION_PERMISSION
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceUtils
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
 import com.monsalud.locationtodo.utils.setDisplayHomeAsUpEnabled
