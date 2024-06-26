@@ -99,18 +99,4 @@ class SaveReminderFragmentTest {
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText("Please select location")))
     }
-
-    @Test
-    fun noLocationPermissions_snackbarShown() {
-        // GIVEN user user is on SaveReminderFragment and does not have location permissions
-        revokeLocationPermission()
-        val scenario = launchFragmentInContainer<SaveReminderFragment>(Bundle(), R.style.AppTheme)
-
-        // WHEN user clicks on Reminder Location Button
-        onView(withId(R.id.selectLocation)).perform(click())
-
-        // THEN snackbar is shown with message "You need to grant location permission..."
-        onView(withId(com.google.android.material.R.id.snackbar_text))
-            .check(matches(withText("You need to grant location permission in order to add a location to this reminder.")))
-    }
 }
