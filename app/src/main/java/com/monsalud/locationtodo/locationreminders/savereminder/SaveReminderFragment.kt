@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
@@ -36,7 +35,8 @@ class SaveReminderFragment : BaseFragment() {
     override val _viewModel: SaveReminderViewModel by inject()
     private val geofenceUtils: GeofenceUtils by inject()
 
-    lateinit var reminderDTO: ReminderDataItem
+    private lateinit var reminderDTO: ReminderDataItem
+    private var shouldShowSnackbarInsteadOfDialog = false
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -49,18 +49,26 @@ class SaveReminderFragment : BaseFragment() {
                 )
             )
         } else {
-            Snackbar.make(
-                binding.root,
-                R.string.permission_denied_explanation,
-                Snackbar.LENGTH_INDEFINITE
-            )
-                .setAction(R.string.settings) {
-                    startActivity(Intent().apply {
-                        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                        data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    })
-                }.show()
+            if (shouldShowSnackbarInsteadOfDialog) {
+                Snackbar.make(
+                    binding.root,
+                    R.string.permission_denied_explanation,
+                    Snackbar.LENGTH_INDEFINITE
+                )
+                    .setAction(R.string.settings) {
+                        startActivity(Intent().apply {
+                            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        })
+                    }.show()
+            } else {
+                geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+                    requireActivity(),
+                    _viewModel.runningQOrLater.value ?: false
+                )
+                shouldShowSnackbarInsteadOfDialog = true
+            }
         }
     }
 
@@ -131,7 +139,6 @@ class SaveReminderFragment : BaseFragment() {
                         )
                     } else {
                         geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
-                            requireContext(),
                             requireActivity(),
                             _viewModel.runningQOrLater.value!!
                         )

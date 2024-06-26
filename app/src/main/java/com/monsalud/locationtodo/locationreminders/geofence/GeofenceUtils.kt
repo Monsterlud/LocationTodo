@@ -4,13 +4,20 @@ import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingRequest
 import com.monsalud.locationtodo.R
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 
 const val TAG = "GeofenceUtils"
 
@@ -48,25 +55,58 @@ class GeofenceUtils {
 
     @TargetApi(29)
     fun requestForegroundAndBackgroundLocationPermissions(
-        context: Context,
         activity: Activity,
         runningQOrLater: Boolean
     ) {
-        if (foregroundAndBackgroundLocationPermissionApproved(context, runningQOrLater)) return
-        var permissionsArray = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION)
-        val resultCode = when {
-            runningQOrLater -> {
-                permissionsArray += Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                GeofenceConstants.REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE
-            }
-            else -> GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+        if (foregroundAndBackgroundLocationPermissionApproved(activity, runningQOrLater)) return
+
+        // First, request ACCESS_FINE_LOCATION
+        if (ActivityCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.d(TAG, "Requesting ACCESS_FINE_LOCATION")
+            activity.requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+            )
+        } else if (runningQOrLater) {
+            // Second, request ACCESS_BACKGROUND_LOCATION
+            requestBackgroundLocationPermission(activity)
         }
-        Log.d(TAG, "Request foreground only location permission")
-        ActivityCompat.requestPermissions(
-            activity,
-            permissionsArray,
-            resultCode
-        )
+    }
+
+    fun requestBackgroundLocationPermission(activity: Activity) {
+        when {
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
+                Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION for Android 10 (Q)")
+                activity.requestPermissions(
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+                )
+            }
+            Build.VERSION.SDK_INT > Build.VERSION_CODES.Q -> {
+                Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION for Android 11 or above")
+                showBackgroundLocationRationale(activity)
+            }
+        }
+    }
+
+    private fun showBackgroundLocationRationale(activity: Activity) {
+        AlertDialog.Builder(activity)
+            .setTitle("Background location access is required to use this app")
+            .setMessage("To use this app's features, please select \"Allow all the time\" in location settings.")
+            .setPositiveButton("Go to Settings") { _, _ ->
+                // Open app settings
+                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).also {
+                    val uri = Uri.fromParts("package", activity.packageName, null)
+                    it.data = uri
+                    activity.startActivity(it)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     /**
@@ -78,12 +118,15 @@ class GeofenceUtils {
             GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE -> resources.getString(
                 R.string.geofence_not_available
             )
+
             GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES -> resources.getString(
                 R.string.geofence_too_many_geofences
             )
+
             GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS -> resources.getString(
                 R.string.geofence_too_many_pending_intents
             )
+
             else -> resources.getString(R.string.unknown_geofence_error)
         }
     }

@@ -21,6 +21,7 @@
     <string name="poi">poi</string>
     <string name="location_required_error">Location services must be enabled to use this app</string>
     <string name="permission_denied_explanation">You need to grant location permission in order to add a location to this reminder.</string>
+    <string name="foreground_permission_denied">Your request for location permission was denied. Please enable "Allow all the time" in Settings.</string>
     <string name="settings">Settings</string>
     <string name="select_poi">Please select a point of interest</string>
     <string name="geofence_entered">Geofence Entered</string>

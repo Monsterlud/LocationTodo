@@ -4,7 +4,10 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -22,10 +25,13 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.material.snackbar.Snackbar
+import com.monsalud.locationtodo.BuildConfig
 import com.monsalud.locationtodo.R
 import com.monsalud.locationtodo.databinding.ActivityRemindersBinding
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+import com.monsalud.locationtodo.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.monsalud.locationtodo.locationreminders.geofence.GeofenceUtils
 import com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem
 import com.monsalud.locationtodo.locationreminders.savereminder.SaveReminderViewModel
@@ -38,16 +44,15 @@ class RemindersActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityRemindersBinding
 
-    private val geofenceUtils = GeofenceUtils()
     private val _viewModel: SaveReminderViewModel by inject()
+    private val geofenceUtils: GeofenceUtils by inject()
     private var geofenceSetupListener: GeofenceSetupListener? = null
 
     private lateinit var navController: NavController
     private lateinit var geofencingClient: GeofencingClient
     private lateinit var geofencePendingIntent: PendingIntent
-    private var reminderDTO: ReminderDataItem? = null
 
-    private var isGeofenceSetupPending = false
+    private var reminderDTO: ReminderDataItem? = null
     private var requestCodeCounter = 0
 
     interface GeofenceSetupListener {
@@ -113,8 +118,8 @@ class RemindersActivity : AppCompatActivity() {
         val locationsSettingsResponseTask =
             settingsClient.checkLocationSettings(builder.build())
 
-        val latitude = reminderDTO?.latitude
-        val longitude = reminderDTO?.longitude
+        val latitude = reminderDataItem.latitude
+        val longitude = reminderDataItem.longitude
 
         locationsSettingsResponseTask.addOnFailureListener { exception ->
             if (exception is ResolvableApiException && resolve) {
@@ -206,6 +211,45 @@ class RemindersActivity : AppCompatActivity() {
                         }
                         geofenceSetupListener?.onGeofenceAdded(false)
                     }
+                }
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Foreground location permission granted")
+                    // Now request background location permission if running Q or later
+                    if (_viewModel.runningQOrLater.value == true) {
+                        geofenceUtils.requestBackgroundLocationPermission(this)
+                    } else {
+                        Log.d(TAG, "Device is on Android 9 or below, no need to request background permission")
+                    }
+                } else {
+                    Log.d(TAG, "Foreground location permission denied")
+                    Snackbar.make(
+                        binding.root,
+                        R.string.foreground_permission_denied,
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(R.string.settings) {
+                            startActivity(Intent().apply {
+                                action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            })
+                        }.show()
+                }
+            }
+            REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Background location permission granted")
+                } else {
+                    Log.d(TAG, "Background location permission denied")
+                    // Handle the denial
                 }
             }
         }

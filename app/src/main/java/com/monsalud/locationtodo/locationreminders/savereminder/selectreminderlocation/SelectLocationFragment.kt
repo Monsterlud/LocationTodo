@@ -205,7 +205,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
-                requireContext(),
                 requireActivity(),
                 _viewModel.runningQOrLater.value!!
             )
@@ -233,7 +232,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
-                requireContext(),
                 requireActivity(),
                 _viewModel.runningQOrLater.value!!
             )
