@@ -51,7 +51,6 @@ are running Android 11 or later.
 ![List_Screen](images/locationtodo_list_noreminders.png)
 ![Select_Location](images/locationtodo_selectlocation.png)
 ![Save_Reminder](images/locationtodo_savereminder.png)
-![List_Screen_One_Reminder](images/locationtodo_onereminder.png)
 
 When you click "Save Reminder" the reminder is added to the database using Room. The List Screen loads this (and any other) reminder into the RecyclerView. Clicking on that item in
 the RecyclerView navigates to the Detail Screen, which displays all of the fields associated with this reminder. A geofence is also created after that reminder is added to the database.
@@ -60,5 +59,6 @@ Once your foreground and background location permissions are set and a reminder 
 geofence. This notification reminds you that you have a todo item at the location you are at, allowing you to get things done as you travel through your town or city. 
 Make aure that you have your notification settings on for the app to get the notification. Clicking the notification navigates you to the Detail Screen.
 
+![List_Screen_One_Reminder](images/locationtodo_list_onereminder.png)
 ![Notification](images/locationtodo_notification.png)
 ![Detail_Screen](images/locationtodo_detail.png)
