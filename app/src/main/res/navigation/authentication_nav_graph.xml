@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/authenticationFragment"
-        android:name="com.monsalud.locationtodo.authentication.AuthenticationFragment"
+        android:name="com.udacity.project4.authentication.AuthenticationFragment"
         android:label="AuthenticationFragment"
         tools:layout="@layout/fragment_authentication" />
 </navigation>

@@ -6,7 +6,7 @@
     <data>
         <variable
             name="item"
-            type="com.monsalud.locationtodo.locationreminders.reminderslist.ReminderDataItem" />
+            type="com.udacity.project4.locationreminders.reminderslist.ReminderDataItem" />
     </data>
 
     <androidx.cardview.widget.CardView

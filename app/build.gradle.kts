@@ -8,17 +8,17 @@ plugins {
 }
 
 android {
-    namespace = "com.monsalud.locationtodo"
+    namespace = "com.udacity.project4"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.monsalud.locationtodo"
+        applicationId = "com.udacity.project4"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.monsalud.locationtodo.InstrumentedTestRunner"
+        testInstrumentationRunner = "com.udacity.project4.InstrumentedTestRunner"
 
     }
 

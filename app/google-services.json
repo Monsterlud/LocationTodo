@@ -7,17 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:819658759384:android:ec35a9cbc7213854bf4bad",
+        "mobilesdk_app_id": "1:819658759384:android:e28c2181292235dabf4bad",
         "android_client_info": {
-          "package_name": "com.monsalud.locationtodo"
+          "package_name": "com.udacity.project4"
         }
       },
       "oauth_client": [
         {
-          "client_id": "819658759384-lr3dubkfjpfv3jo3sf42rspfgqul2tdj.apps.googleusercontent.com",
+          "client_id": "819658759384-rka0a643uvskfuv55oenscuuq2bbvev7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.monsalud.locationtodo",
+            "package_name": "com.udacity.project4",
             "certificate_hash": "1fab7ce7b8abcfd494458871f39354e6b73ae39f"
           }
         },

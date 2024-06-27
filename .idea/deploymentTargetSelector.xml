@@ -13,10 +13,16 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="clickFAB_triggersNavigationToSaveRemindersFragment()">
+      <SelectionState runConfigName="ReminderListFragmentTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="recyclerViewPopulated_itemClicked_navigatesToReminderDescriptionActivity()">
+      <SelectionState runConfigName="SaveReminderFragmentTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="noLocationPermissions_snackbarShown()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="noLocationPermissionsAndNoLocation_snackbarShown()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
