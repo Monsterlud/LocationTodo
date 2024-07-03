@@ -91,8 +91,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         }
     }
 
-
-
     fun getReminder(id: String): LiveData<Result<ReminderDTO>> {
         return liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             // Switch to the main thread to update showLoading

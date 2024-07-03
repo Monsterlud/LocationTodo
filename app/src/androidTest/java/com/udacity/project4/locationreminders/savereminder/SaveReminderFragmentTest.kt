@@ -1,41 +1,53 @@
 package com.udacity.project4.locationreminders.savereminder
 
+import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.udacity.project4.MainCoroutineRule
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.LiveDataTestUtil.getOrAwaitValue
+import com.udacity.project4.locationreminders.RemindersActivity
+import com.udacity.project4.locationreminders.TestApplication
 import com.udacity.project4.locationreminders.data.FakeAndroidRemindersLocalRepository
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.MatcherAssert.assertThat
+import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.koin.java.KoinJavaComponent.get
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 
+@ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class SaveReminderFragmentTest {
 
     private lateinit var repository: ReminderDataSource
+    private lateinit var appContext: Context
+    private lateinit var application: Application
 
-//    @get:Rule
-//    val permissionsRule: GrantPermissionRule = GrantPermissionRule.grant(
-//        android.Manifest.permission.ACCESS_FINE_LOCATION,
-//        android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
-//    )
 
     private fun grantLocationPermission() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -57,9 +69,24 @@ class SaveReminderFragmentTest {
         )
     }
 
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    val mainCoroutineRule = MainCoroutineRule()
+
+    @get:Rule
+    val activityRule = ActivityScenarioRule(RemindersActivity::class.java)
+
     @Before
     fun setup() {
-        repository = FakeAndroidRemindersLocalRepository()
+        repository = get(FakeAndroidRemindersLocalRepository::class.java)
+        appContext = ApplicationProvider.getApplicationContext<TestApplication>()
+        (appContext as TestApplication?)?.setupTestModule(repository)
+    }
+
+    @After
+    fun cleanup() {
     }
 
     @Test
@@ -98,5 +125,26 @@ class SaveReminderFragmentTest {
 
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText("Please select location")))
+    }
+
+    @Test
+    fun reminderSavedToDatabase_reminderSavedToastShown() = runBlockingTest {
+        // GIVEN user is on SaveReminderFragment
+        val scenario = launchFragmentInContainer<SaveReminderFragment>(
+            Bundle(),
+            R.style.AppTheme
+        )
+
+        val navController = mock(NavController::class.java)
+        val reminder = ReminderDataItem("Title", "Description", "Location", 0.0, 0.0)
+        val expectedMessage = appContext.getString(R.string.reminder_saved)
+
+        // WHEN user clicks on the save button and saves the reminder
+        // THEN reminder is saved and a toast is shown
+        scenario.onFragment {
+            Navigation.setViewNavController(it.requireView(), navController)
+            it._viewModel.validateAndSaveReminder(reminder)
+            assertThat(it._viewModel.showToast.value, `is`(expectedMessage))
+        }
     }
 }

@@ -32,6 +32,7 @@ coroutines = "1.6.4"
 robolectric = "4.3.1"
 truth = "1.1.3"
 mockito = "5.12.0"
+mockitoKotlin = "5.3.1"
 testCore = "1.5.0"
 testExt = "1.1.5"
 testRules = "1.5.0"
@@ -90,6 +91,7 @@ androidx-test-ext = { group = "androidx.test.ext", name = "junit-ktx", version.r
 androidx-test-rules = { group = "androidx.test", name = "rules", version.ref = "testRules" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockitoKotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
 androidx-fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragmentTesting" }
 
 # Unit Testing

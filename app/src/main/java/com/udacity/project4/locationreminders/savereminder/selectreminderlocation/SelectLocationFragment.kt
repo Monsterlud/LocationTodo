@@ -146,7 +146,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            map.isMyLocationEnabled = true
+            map.uiSettings.isMyLocationButtonEnabled = true
+            setMapLongClick()
             enableMyLocation()
             moveCameraToCurrentLocation()
         }
@@ -191,7 +192,6 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-
     private fun moveCameraToCurrentLocation() {
         val fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -206,7 +206,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         ) {
             geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
                 requireActivity(),
-                _viewModel.runningQOrLater.value!!
+                _viewModel.runningQOrLater.value ?: false
             )
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
@@ -226,17 +226,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+            ) != PackageManager.PERMISSION_GRANTED) {
             geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
                 requireActivity(),
-                _viewModel.runningQOrLater.value!!
+                _viewModel.runningQOrLater.value ?: false
             )
         } else {
             map.isMyLocationEnabled = true
+            moveCameraToCurrentLocation()
         }
     }
 

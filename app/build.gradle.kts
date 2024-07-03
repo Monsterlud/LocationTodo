@@ -108,6 +108,7 @@ dependencies {
     testImplementation(libs.androidx.test.ext)
     testImplementation(libs.androidx.test.rules)
     testImplementation(libs.koinTest)
+    testImplementation(libs.mockitoKotlin)
 
     // Instrumentation Testing (Android)
     androidTestImplementation(libs.junit)

@@ -35,6 +35,7 @@ import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST
 import com.udacity.project4.locationreminders.geofence.GeofenceUtils
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment
 import org.koin.android.ext.android.inject
 
 /**
@@ -216,17 +217,31 @@ class RemindersActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Foreground location permission granted")
                     // Now request background location permission if running Q or later
+                    val currentFragment =
+                        supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+                            ?.childFragmentManager?.fragments?.firstOrNull()
+                    Log.d(TAG, "Current Fragment: $currentFragment")
+                    if (currentFragment is SelectLocationFragment) {
+                        currentFragment.onLocationPermissionGranted()
+                    }
                     if (_viewModel.runningQOrLater.value == true) {
                         geofenceUtils.requestBackgroundLocationPermission(this)
                     } else {
-                        Log.d(TAG, "Device is on Android 9 or below, no need to request background permission")
+                        Log.d(
+                            TAG,
+                            "Device is on Android 9 or below, no need to request background permission"
+                        )
                     }
                 } else {
                     Log.d(TAG, "Foreground location permission denied")
@@ -244,6 +259,7 @@ class RemindersActivity : AppCompatActivity() {
                         }.show()
                 }
             }
+
             REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d(TAG, "Background location permission granted")
