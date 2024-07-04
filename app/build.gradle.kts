@@ -64,6 +64,7 @@ dependencies {
 
     // Architecture & Lifecycle Components
     implementation(libs.androidx.activity)
+    implementation(libs.androidx.activity.ktx)
 
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)

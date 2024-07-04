@@ -16,7 +16,7 @@ gradlePlugin = "1.9.0"
 googleServices = "4.4.2"
 firebaseBom = "32.3.1"
 firebaseUiAuth = "8.0.2"
-firebaseAuthKtx = "21.2.0"
+firebaseAuthKtx = "23.0.0"
 safeArgs = "2.7.7"
 swipeRefresh = "1.1.0"
 fragment = "1.2.0-alpha01"
@@ -40,6 +40,7 @@ dexmaker = "2.28.3"
 fragmentTesting = "1.5.6"
 mapsPlatformSecrets = "2.0.1"
 annotation = "1.8.0"
+activityKtx = "1.7.0"
 
 [libraries]
 
@@ -56,6 +57,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 
 # Architecture & Lifecycle Components
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
 androidx-lifecycle-extensions = { group = "androidx.lifecycle", name = "lifecycle-extensions", version.ref = "lifecycleExtensions"}
 androidx-lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }

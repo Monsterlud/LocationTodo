@@ -52,7 +52,7 @@ class SaveReminderFragment : BaseFragment() {
             if (shouldShowSnackbarInsteadOfDialog) {
                 Snackbar.make(
                     binding.root,
-                    R.string.permission_denied_explanation,
+                    R.string.location_permissions_denied_explanation,
                     Snackbar.LENGTH_INDEFINITE
                 )
                     .setAction(R.string.settings) {
