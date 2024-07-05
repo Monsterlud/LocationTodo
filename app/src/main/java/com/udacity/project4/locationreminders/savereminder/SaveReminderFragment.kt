@@ -1,6 +1,7 @@
 package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
+import android.app.NotificationManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -11,7 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -23,6 +24,7 @@ import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants
+import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_NOTIFICATION_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceUtils
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
@@ -52,7 +54,7 @@ class SaveReminderFragment : BaseFragment() {
             if (shouldShowSnackbarInsteadOfDialog) {
                 Snackbar.make(
                     binding.root,
-                    R.string.location_permissions_denied_explanation,
+                    R.string.both_permissions_denied_explanation,
                     Snackbar.LENGTH_INDEFINITE
                 )
                     .setAction(R.string.settings) {
@@ -85,7 +87,6 @@ class SaveReminderFragment : BaseFragment() {
         return binding.root
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -109,6 +110,16 @@ class SaveReminderFragment : BaseFragment() {
                 _viewModel.latitude.value,
                 _viewModel.longitude.value
             )
+
+            // Check notification permissions if on Tiramisu or later
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                val notificationManager =
+                    requireContext().getSystemService(NotificationManager::class.java)
+                if (!notificationManager.areNotificationsEnabled()) {
+                    requestNotificationPermission()
+                    return@setOnClickListener // Exit early if permissions are missing
+                }
+            }
 
             viewLifecycleOwner.lifecycleScope.launch {
                 _viewModel.validateAndSaveReminder(reminderDTO)
@@ -146,6 +157,14 @@ class SaveReminderFragment : BaseFragment() {
                 }
             }
         }
+    }
+
+    private fun requestNotificationPermission() {
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            REQUEST_NOTIFICATION_ONLY_PERMISSIONS_REQUEST_CODE
+        )
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

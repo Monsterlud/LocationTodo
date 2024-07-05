@@ -32,6 +32,7 @@ import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_NOTIFICATION_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceUtils
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
@@ -247,7 +248,7 @@ class RemindersActivity : AppCompatActivity() {
                     Log.d(TAG, "Foreground location permission denied")
                     Snackbar.make(
                         binding.root,
-                        R.string.foreground_permission_denied,
+                        R.string.foreground_location_permissions_denied_explanation,
                         Snackbar.LENGTH_INDEFINITE
                     )
                         .setAction(R.string.settings) {
@@ -265,7 +266,38 @@ class RemindersActivity : AppCompatActivity() {
                     Log.d(TAG, "Background location permission granted")
                 } else {
                     Log.d(TAG, "Background location permission denied")
-                    // Handle the denial
+                    Snackbar.make(
+                        binding.root,
+                        R.string.background_location_permission_denied_explanation,
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(R.string.settings) {
+                            startActivity(Intent().apply {
+                                action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            })
+                        }.show()
+                }
+            }
+
+            REQUEST_NOTIFICATION_ONLY_PERMISSIONS_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Notification permission granted")
+                } else {
+                    Log.d(TAG, "Notification permission denied")
+                    Snackbar.make(
+                        binding.root,
+                        R.string.notification_permissions_denied_explanation,
+                        Snackbar.LENGTH_INDEFINITE
+                    )
+                        .setAction(R.string.settings) {
+                            startActivity(Intent().apply {
+                                action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                                data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            })
+                        }.show()
                 }
             }
         }
