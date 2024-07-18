@@ -12,9 +12,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofenceStatusCodes
-import com.google.android.gms.location.GeofencingRequest
 import com.udacity.project4.R
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
@@ -23,58 +21,31 @@ const val TAG = "GeofenceUtils"
 
 class GeofenceUtils {
 
-    /**
-     * Checks for permissions to access location...
-     * Returns true if the user granted either ACCESS_FINE_LOCATION (Q and below)
-     * or granted both ACCESS_COARSE_LOCATION and ACCESS_BACKGROUND_LOCATION (Q and above)
-     */
-    @TargetApi(29)
-    fun foregroundAndBackgroundLocationPermissionApproved(
-        context: Context,
-        runningQOrLater: Boolean
-    ): Boolean {
-        val foregroundLocationApproved = (
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        )
-                )
-        val backgroundPermissionApproved =
-            if (runningQOrLater) {
-                PackageManager.PERMISSION_GRANTED ==
-                        ActivityCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-                        )
-            } else {
-                true
-            }
-        return foregroundLocationApproved && backgroundPermissionApproved
+    private fun isForegroundLocationPermissionGranted(context: Context): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun isBackgroundLocationPermissionGranted(context: Context, runningQOrLater: Boolean) : Boolean {
+        return if (runningQOrLater) {
+            ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
     }
 
     @TargetApi(29)
-    fun requestForegroundAndBackgroundLocationPermissions(
-        activity: Activity,
-        runningQOrLater: Boolean
-    ) {
-        if (foregroundAndBackgroundLocationPermissionApproved(activity, runningQOrLater)) return
+    fun requestForegroundLocationPermission(activity: Activity) {
+        if (isForegroundLocationPermissionGranted(activity)) return
 
-        // First, request ACCESS_FINE_LOCATION
-        if (ActivityCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            Log.d(TAG, "Requesting ACCESS_FINE_LOCATION")
-            activity.requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-            )
-        } else if (runningQOrLater) {
-            // Second, request ACCESS_BACKGROUND_LOCATION
-            requestBackgroundLocationPermission(activity)
-        }
+        Log.d(TAG, "Requesting foreground location permission")
+        ActivityCompat.requestPermissions(
+            activity,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+            REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+        )
     }
 
     fun requestBackgroundLocationPermission(activity: Activity) {
@@ -96,7 +67,7 @@ class GeofenceUtils {
     private fun showBackgroundLocationRationale(activity: Activity) {
         AlertDialog.Builder(activity)
             .setTitle("Background location access is required to use this app")
-            .setMessage("To use this app's features, please select \"Allow all the time\" in location settings.")
+            .setMessage("To use this app's notification features, please select \"Allow all the time\" in location settings then navigate back to the app.")
             .setPositiveButton("Go to Settings") { _, _ ->
                 // Open app settings
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).also {
@@ -129,16 +100,5 @@ class GeofenceUtils {
 
             else -> resources.getString(R.string.unknown_geofence_error)
         }
-    }
-
-    fun addGeofenceRequest(geofence: Geofence) {
-
-    }
-
-    fun getGeofencingRequest(geofenceList: List<Geofence>): GeofencingRequest {
-        return GeofencingRequest.Builder().apply {
-            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-            addGeofences(geofenceList)
-        }.build()
     }
 }

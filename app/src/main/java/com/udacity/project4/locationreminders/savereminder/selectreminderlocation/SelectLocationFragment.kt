@@ -63,7 +63,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         binding.viewModel = _viewModel
         binding.btnSaveLocation.setOnClickListener {
-            onLocationSelected()
+            if (isLocationSelected) {
+                if (_viewModel.runningQOrLater.value == true && !geofenceUtils.isBackgroundLocationPermissionGranted(
+                        requireContext(),
+                        _viewModel.runningQOrLater.value!!
+                )) {
+                    geofenceUtils.requestBackgroundLocationPermission(
+                        requireActivity()
+                    )
+                } else {
+                    onLocationSelected()
+                }
+
+            } else {
+                Snackbar.make(
+                    binding.root,
+                    "Please select a location by long-pressing on the map",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
         }
         return binding.root
     }
@@ -204,9 +222,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+            geofenceUtils.requestForegroundLocationPermission(
                 requireActivity(),
-                _viewModel.runningQOrLater.value ?: false
             )
         } else {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener { location ->
@@ -227,9 +244,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED) {
-            geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+            geofenceUtils.requestForegroundLocationPermission(
                 requireActivity(),
-                _viewModel.runningQOrLater.value ?: false
             )
         } else {
             map.isMyLocationEnabled = true

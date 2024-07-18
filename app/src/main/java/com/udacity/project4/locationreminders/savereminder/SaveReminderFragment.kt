@@ -65,9 +65,8 @@ class SaveReminderFragment : BaseFragment() {
                         })
                     }.show()
             } else {
-                geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+                geofenceUtils.requestForegroundLocationPermission(
                     requireActivity(),
-                    _viewModel.runningQOrLater.value ?: false
                 )
                 shouldShowSnackbarInsteadOfDialog = true
             }
@@ -96,8 +95,7 @@ class SaveReminderFragment : BaseFragment() {
             // Navigate to another fragment to get the user location
             requestPermissionLauncher.launch(
                 arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    Manifest.permission.ACCESS_FINE_LOCATION
                 )
             )
         }
@@ -126,34 +124,35 @@ class SaveReminderFragment : BaseFragment() {
             }
             _viewModel.reminderSaved.observe(viewLifecycleOwner) { reminderSaved ->
                 if (reminderSaved) {
-                    if (geofenceUtils.foregroundAndBackgroundLocationPermissionApproved(
-                            requireContext(),
-                            _viewModel.runningQOrLater.value!!
-                        )
-                    ) {
-                        (requireActivity() as? RemindersActivity)?.checkPermissionsAndStartGeofencing(
-                            reminderDTO,
-                            object : RemindersActivity.GeofenceSetupListener {
-                                override fun onGeofenceAdded(success: Boolean) {
-                                    if (success) {
-                                        _viewModel.setReminderSaved(false)
-                                        findNavController().popBackStack()
-                                    } else {
-                                        Snackbar.make(
-                                            binding.root,
-                                            R.string.geofences_not_added,
-                                            Snackbar.LENGTH_SHORT
-                                        ).show()
-                                    }
-                                }
-                            }
-                        )
-                    } else {
-                        geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
-                            requireActivity(),
-                            _viewModel.runningQOrLater.value!!
-                        )
-                    }
+                    findNavController().popBackStack()
+//                    if (geofenceUtils.foregroundAndBackgroundLocationPermissionApproved(
+//                            requireContext(),
+//                            _viewModel.runningQOrLater.value!!
+//                        )
+//                    ) {
+//                        (requireActivity() as? RemindersActivity)?.checkPermissionsAndStartGeofencing(
+//                            reminderDTO,
+//                            object : RemindersActivity.GeofenceSetupListener {
+//                                override fun onGeofenceAdded(success: Boolean) {
+//                                    if (success) {
+//                                        _viewModel.setReminderSaved(false)
+//                                        findNavController().popBackStack()
+//                                    } else {
+//                                        Snackbar.make(
+//                                            binding.root,
+//                                            R.string.geofences_not_added,
+//                                            Snackbar.LENGTH_SHORT
+//                                        ).show()
+//                                    }
+//                                }
+//                            }
+//                        )
+//                    } else {
+//                        geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
+//                            requireActivity(),
+//                            _viewModel.runningQOrLater.value!!
+//                        )
+//                    }
                 }
             }
         }
