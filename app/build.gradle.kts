@@ -114,6 +114,7 @@ dependencies {
     // Instrumentation Testing (Android)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.espresso.contrib)
     androidTestImplementation(libs.androidx.espresso.intents)
@@ -128,4 +129,5 @@ dependencies {
     androidTestImplementation(libs.mockito)
     androidTestImplementation(libs.dexmaker)
     androidTestImplementation(libs.koinTest)
+    androidTestImplementation(libs.mockitoKotlin)
 }
