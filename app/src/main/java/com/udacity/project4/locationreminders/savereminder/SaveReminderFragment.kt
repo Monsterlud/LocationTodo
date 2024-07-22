@@ -119,40 +119,26 @@ class SaveReminderFragment : BaseFragment() {
                 }
             }
 
+            // Check background location permissions if running Q or later
+            if (_viewModel.runningQOrLater.value == true &&
+                !geofenceUtils.isBackgroundLocationPermissionGranted(
+                    requireContext(),
+                    _viewModel.runningQOrLater.value!!
+                )
+            ) {
+                geofenceUtils.requestBackgroundLocationPermission(
+                    requireActivity()
+                )
+                return@setOnClickListener // Exit early if permissions are missing
+            }
+
             viewLifecycleOwner.lifecycleScope.launch {
                 _viewModel.validateAndSaveReminder(reminderDTO)
             }
+
             _viewModel.reminderSaved.observe(viewLifecycleOwner) { reminderSaved ->
                 if (reminderSaved) {
                     findNavController().popBackStack()
-//                    if (geofenceUtils.foregroundAndBackgroundLocationPermissionApproved(
-//                            requireContext(),
-//                            _viewModel.runningQOrLater.value!!
-//                        )
-//                    ) {
-//                        (requireActivity() as? RemindersActivity)?.checkPermissionsAndStartGeofencing(
-//                            reminderDTO,
-//                            object : RemindersActivity.GeofenceSetupListener {
-//                                override fun onGeofenceAdded(success: Boolean) {
-//                                    if (success) {
-//                                        _viewModel.setReminderSaved(false)
-//                                        findNavController().popBackStack()
-//                                    } else {
-//                                        Snackbar.make(
-//                                            binding.root,
-//                                            R.string.geofences_not_added,
-//                                            Snackbar.LENGTH_SHORT
-//                                        ).show()
-//                                    }
-//                                }
-//                            }
-//                        )
-//                    } else {
-//                        geofenceUtils.requestForegroundAndBackgroundLocationPermissions(
-//                            requireActivity(),
-//                            _viewModel.runningQOrLater.value!!
-//                        )
-//                    }
                 }
             }
         }

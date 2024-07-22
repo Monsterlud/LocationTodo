@@ -64,17 +64,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.viewModel = _viewModel
         binding.btnSaveLocation.setOnClickListener {
             if (isLocationSelected) {
-                if (_viewModel.runningQOrLater.value == true && !geofenceUtils.isBackgroundLocationPermissionGranted(
-                        requireContext(),
-                        _viewModel.runningQOrLater.value!!
-                )) {
-                    geofenceUtils.requestBackgroundLocationPermission(
-                        requireActivity()
-                    )
-                } else {
-                    onLocationSelected()
-                }
-
+                onLocationSelected()
             } else {
                 Snackbar.make(
                     binding.root,
@@ -243,7 +233,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (ActivityCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED) {
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             geofenceUtils.requestForegroundLocationPermission(
                 requireActivity(),
             )

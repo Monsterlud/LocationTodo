@@ -66,8 +66,8 @@ class GeofenceUtils {
 
     private fun showBackgroundLocationRationale(activity: Activity) {
         AlertDialog.Builder(activity)
-            .setTitle("Background location access is required to use this app")
-            .setMessage("To use this app's notification features, please select \"Allow all the time\" in location settings then navigate back to the app.")
+            .setTitle("Background location permission is required to use Geofencing features")
+            .setMessage("To use this app's geofencing features, please select \"Allow all the time\" in location settings then navigate back to the app.")
             .setPositiveButton("Go to Settings") { _, _ ->
                 // Open app settings
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).also {
