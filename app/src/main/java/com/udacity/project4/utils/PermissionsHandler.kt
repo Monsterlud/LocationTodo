@@ -1,4 +1,4 @@
-package com.udacity.project4.locationreminders.geofence
+package com.udacity.project4.utils
 
 import android.Manifest
 import android.annotation.TargetApi
@@ -17,9 +17,9 @@ import com.udacity.project4.R
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 
-const val TAG = "GeofenceUtils"
+const val TAG = "PermissionsHandler"
 
-class GeofenceUtils {
+class PermissionsHandler {
 
     private fun isForegroundLocationPermissionGranted(context: Context): Boolean {
         return ActivityCompat.checkSelfPermission(

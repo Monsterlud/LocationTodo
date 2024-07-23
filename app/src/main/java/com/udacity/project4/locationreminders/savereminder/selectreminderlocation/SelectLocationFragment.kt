@@ -28,8 +28,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
-import com.udacity.project4.locationreminders.geofence.GeofenceUtils
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.utils.PermissionsHandler
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 import java.util.Locale
@@ -37,7 +37,7 @@ import java.util.Locale
 class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     override val _viewModel: SaveReminderViewModel by inject()
-    private val geofenceUtils by inject<GeofenceUtils>()
+    private val permissionsHandler by inject<PermissionsHandler>()
 
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
@@ -212,7 +212,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            geofenceUtils.requestForegroundLocationPermission(
+            permissionsHandler.requestForegroundLocationPermission(
                 requireActivity(),
             )
         } else {
@@ -235,7 +235,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            geofenceUtils.requestForegroundLocationPermission(
+            permissionsHandler.requestForegroundLocationPermission(
                 requireActivity(),
             )
         } else {

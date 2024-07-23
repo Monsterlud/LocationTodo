@@ -33,10 +33,10 @@ import com.udacity.project4.locationreminders.geofence.GeofenceConstants
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_NOTIFICATION_ONLY_PERMISSIONS_REQUEST_CODE
-import com.udacity.project4.locationreminders.geofence.GeofenceUtils
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment
+import com.udacity.project4.utils.PermissionsHandler
 import org.koin.android.ext.android.inject
 
 /**
@@ -47,7 +47,7 @@ class RemindersActivity : AppCompatActivity() {
     private lateinit var binding: ActivityRemindersBinding
 
     private val _viewModel: SaveReminderViewModel by inject()
-    private val geofenceUtils: GeofenceUtils by inject()
+    private val permissionsHandler: PermissionsHandler by inject()
     private var geofenceSetupListener: GeofenceSetupListener? = null
 
     private lateinit var navController: NavController
@@ -237,7 +237,7 @@ class RemindersActivity : AppCompatActivity() {
                         currentFragment.onLocationPermissionGranted()
                     }
                     if (_viewModel.runningQOrLater.value == true) {
-                        geofenceUtils.requestBackgroundLocationPermission(this)
+                        permissionsHandler.requestBackgroundLocationPermission(this)
                     } else {
                         Log.d(
                             TAG,

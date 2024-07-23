@@ -6,9 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.udacity.project4.locationreminders.data.FakeAndroidRemindersLocalRepository
 import com.udacity.project4.locationreminders.data.ReminderDataSource
-import com.udacity.project4.locationreminders.geofence.GeofenceUtils
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
+import com.udacity.project4.utils.PermissionsHandler
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.loadKoinModules
 import org.koin.core.context.startKoin
@@ -36,7 +36,7 @@ class TestApplication : Application() {
                 Log.d("Koin", "Creating SaveReminderViewModel")
                 SaveReminderViewModel(this@TestApplication, get())
             }
-            single { GeofenceUtils() }
+            single { PermissionsHandler() }
             factory<ViewModelProvider.Factory> { CustomViewModelFactory(get()) }
         }
 
@@ -65,8 +65,6 @@ class TestApplication : Application() {
         }
         loadKoinModules(testModule)
     }
-
-
 }
 
 class CustomViewModelFactory(private val viewModel: RemindersListViewModel) :

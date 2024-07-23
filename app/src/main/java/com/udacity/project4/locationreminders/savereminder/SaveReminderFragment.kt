@@ -25,8 +25,8 @@ import com.udacity.project4.databinding.FragmentSaveReminderBinding
 import com.udacity.project4.locationreminders.RemindersActivity
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_NOTIFICATION_ONLY_PERMISSIONS_REQUEST_CODE
-import com.udacity.project4.locationreminders.geofence.GeofenceUtils
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.utils.PermissionsHandler
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -35,7 +35,7 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var binding: FragmentSaveReminderBinding
 
     override val _viewModel: SaveReminderViewModel by inject()
-    private val geofenceUtils: GeofenceUtils by inject()
+    private val permissionsHandler: PermissionsHandler by inject()
 
     private lateinit var reminderDTO: ReminderDataItem
     private var shouldShowSnackbarInsteadOfDialog = false
@@ -65,7 +65,7 @@ class SaveReminderFragment : BaseFragment() {
                         })
                     }.show()
             } else {
-                geofenceUtils.requestForegroundLocationPermission(
+                permissionsHandler.requestForegroundLocationPermission(
                     requireActivity(),
                 )
                 shouldShowSnackbarInsteadOfDialog = true
@@ -121,12 +121,12 @@ class SaveReminderFragment : BaseFragment() {
 
             // Check background location permissions if running Q or later
             if (_viewModel.runningQOrLater.value == true &&
-                !geofenceUtils.isBackgroundLocationPermissionGranted(
+                !permissionsHandler.isBackgroundLocationPermissionGranted(
                     requireContext(),
                     _viewModel.runningQOrLater.value!!
                 )
             ) {
-                geofenceUtils.requestBackgroundLocationPermission(
+                permissionsHandler.requestBackgroundLocationPermission(
                     requireActivity()
                 )
                 return@setOnClickListener // Exit early if permissions are missing

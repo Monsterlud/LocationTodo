@@ -20,6 +20,8 @@ import com.udacity.project4.locationreminders.geofence.GeofenceConstants.CHANNEL
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.EXTRA_GEOFENCE_INDEX
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.EXTRA_REQUEST_ID
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.NOTIFICATION_ID
+import com.udacity.project4.utils.PermissionsHandler
+import com.udacity.project4.utils.TAG
 
 /**
  * Triggered by the Geofence.  Since we can have many Geofences at once, we pull the request
@@ -39,7 +41,7 @@ class GeofenceBroadcastReceiver : BroadcastReceiver() {
         val geofencingEvent = GeofencingEvent.fromIntent(intent)
         if (geofencingEvent != null) {
             if (geofencingEvent.hasError()) {
-                val errorMessage = GeofenceUtils().errorMessage(context, geofencingEvent.errorCode)
+                val errorMessage = PermissionsHandler().errorMessage(context, geofencingEvent.errorCode)
                 return
             }
         }
