@@ -3,21 +3,16 @@ package com.udacity.project4.locationreminders.savereminder
 import android.Manifest
 import android.app.NotificationManager
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
-import com.udacity.project4.BuildConfig
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -38,40 +33,9 @@ class SaveReminderFragment : BaseFragment() {
     private val permissionsHandler: PermissionsHandler by inject()
 
     private lateinit var reminderDTO: ReminderDataItem
-    private var shouldShowSnackbarInsteadOfDialog = false
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val areAllPermissionsGranted = permissions.values.all { it }
-        if (areAllPermissionsGranted) {
-            _viewModel.navigationCommand.postValue(
-                NavigationCommand.To(
-                    SaveReminderFragmentDirections.toSelectLocationFragment()
-                )
-            )
-        } else {
-            if (shouldShowSnackbarInsteadOfDialog) {
-                Snackbar.make(
-                    binding.root,
-                    R.string.both_permissions_denied_explanation,
-                    Snackbar.LENGTH_INDEFINITE
-                )
-                    .setAction(R.string.settings) {
-                        startActivity(Intent().apply {
-                            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-                            data = Uri.fromParts("package", BuildConfig.APPLICATION_ID, null)
-                            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        })
-                    }.show()
-            } else {
-                permissionsHandler.requestForegroundLocationPermission(
-                    requireActivity(),
-                )
-                shouldShowSnackbarInsteadOfDialog = true
-            }
-        }
-    }
+
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -93,10 +57,9 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.selectLocation.setOnClickListener {
             // Navigate to another fragment to get the user location
-            requestPermissionLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
+//            findNavController().navigate(SaveReminderFragmentDirections.toSelectLocationFragment())
+            _viewModel.navigationCommand.postValue(
+                NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
             )
         }
 

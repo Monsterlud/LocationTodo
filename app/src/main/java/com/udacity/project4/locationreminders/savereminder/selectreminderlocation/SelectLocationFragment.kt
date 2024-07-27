@@ -46,6 +46,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var latLong: LatLng
     private lateinit var locationString: String
     private var isLocationSelected = false
+    private var locationPermissionsChecked = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -88,6 +89,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             }
         selectLocationDialog.show()
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun checkLocationPermission() {
+        if (!locationPermissionsChecked) {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsHandler.requestForegroundLocationPermission(requireActivity())
+                locationPermissionsChecked = true
+            } else {
+                onLocationPermissionGranted()
+            }
+        }
     }
 
     private fun onLocationSelected() {
@@ -144,8 +160,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map.uiSettings.isMyLocationButtonEnabled = true
         setMapLongClick()
         setPoiClick(googleMap)
-        enableMyLocation()
-        moveCameraToCurrentLocation()
+        checkLocationPermission()
     }
 
     fun onLocationPermissionGranted() {

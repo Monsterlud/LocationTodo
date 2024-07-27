@@ -21,7 +21,7 @@ const val TAG = "PermissionsHandler"
 
 class PermissionsHandler {
 
-    private fun isForegroundLocationPermissionGranted(context: Context): Boolean {
+    fun isForegroundLocationPermissionGranted(context: Context): Boolean {
         return ActivityCompat.checkSelfPermission(
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
