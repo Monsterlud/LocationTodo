@@ -29,12 +29,16 @@ class FakeRemindersLocalRepository(
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        for (reminder in reminders) {
-            if (reminder.id == id) {
-                return Result.Success(reminder)
+        return if (shouldReturnError) {
+            return Result.Error("Reminder not found")
+        } else {
+            for (reminder in reminders) {
+                if (reminder.id == id) {
+                    return Result.Success(reminder)
+                }
             }
+            Result.Error("Reminder not found")
         }
-        return Result.Error("Reminder not found")
     }
 
     override suspend fun deleteAllReminders() {
