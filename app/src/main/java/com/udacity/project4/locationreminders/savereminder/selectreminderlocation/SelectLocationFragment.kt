@@ -2,8 +2,10 @@ package com.udacity.project4.locationreminders.savereminder.selectreminderlocati
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -23,6 +25,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.udacity.project4.R
@@ -158,6 +161,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.uiSettings.isMyLocationButtonEnabled = true
+        setMapStyle(googleMap)
         setMapLongClick()
         setPoiClick(googleMap)
         checkLocationPermission()
@@ -201,6 +205,31 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 val address = addresses[0]
                 locationString = address.getAddressLine(0)
             }
+        }
+    }
+
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+
+            val inputStream = resources.openRawResource(R.raw.map_style)
+            val json = inputStream.bufferedReader().use { it.readText() }
+
+            Log.d("SelectLocationFragment", "Loaded style options: $json")
+
+            // Use resources/raw/map_style.json to style the map
+            val mapStyleOptions = MapStyleOptions.loadRawResourceStyle(
+                requireContext(),
+                R.raw.map_style
+            )
+            Log.d("SelectLocationFragment", "Loaded style options: $mapStyleOptions?")
+            if (mapStyleOptions != null) {
+                val success = map.setMapStyle(mapStyleOptions)
+                if (!success) {
+                    Log.e("SelectLocationFragment", "Style parsing failed")
+                }
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
         }
     }
 
