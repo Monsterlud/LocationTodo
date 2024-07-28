@@ -35,8 +35,6 @@ class SaveReminderFragment : BaseFragment() {
     private lateinit var reminderDTO: ReminderDataItem
 
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -57,7 +55,6 @@ class SaveReminderFragment : BaseFragment() {
 
         binding.selectLocation.setOnClickListener {
             // Navigate to another fragment to get the user location
-//            findNavController().navigate(SaveReminderFragmentDirections.toSelectLocationFragment())
             _viewModel.navigationCommand.postValue(
                 NavigationCommand.To(SaveReminderFragmentDirections.toSelectLocationFragment())
             )
@@ -97,12 +94,6 @@ class SaveReminderFragment : BaseFragment() {
 
             viewLifecycleOwner.lifecycleScope.launch {
                 _viewModel.validateAndSaveReminder(reminderDTO)
-            }
-
-            _viewModel.reminderSaved.observe(viewLifecycleOwner) { reminderSaved ->
-                if (reminderSaved) {
-                    findNavController().popBackStack()
-                }
             }
         }
     }

@@ -27,10 +27,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val latitude = MutableLiveData<Double?>()
     val longitude = MutableLiveData<Double?>()
 
-    private val _reminderSaved = MutableLiveData<Boolean>(false)
-    val reminderSaved: LiveData<Boolean>
-        get() = _reminderSaved
-
     private val _runningQOrLater = MutableLiveData<Boolean>()
     val runningQOrLater: LiveData<Boolean>
         get() = _runningQOrLater
@@ -45,10 +41,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         selectedPOI.value = null
         latitude.value = null
         longitude.value = null
-    }
-
-    fun setReminderSaved(value: Boolean) {
-        _reminderSaved.value = value
     }
 
     fun setRunningQOrLater(value: Boolean) {
@@ -87,7 +79,6 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             showLoading.value = false
             showToast.value = app.getString(R.string.reminder_saved)
             navigationCommand.value = NavigationCommand.Back
-            _reminderSaved.value = true
         }
     }
 

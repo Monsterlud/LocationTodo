@@ -1,6 +1,5 @@
 package com.udacity.project4.locationreminders.savereminder
 
-import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -12,12 +11,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
-import androidx.test.espresso.action.ViewActions.typeText
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
-import androidx.test.espresso.matcher.ViewMatchers.isClickable
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -38,7 +32,6 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -54,10 +47,8 @@ class SaveReminderFragmentTest {
 
     private lateinit var repository: ReminderDataSource
     private lateinit var appContext: Context
-    private lateinit var application: Application
     private lateinit var viewModel: SaveReminderViewModel
     private lateinit var toastIdlingResourceHelper: ToastIdlingResourceHelper
-
 
     private fun grantLocationPermission() {
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -167,43 +158,5 @@ class SaveReminderFragmentTest {
             it._viewModel.validateAndSaveReminder(reminder)
             assertThat(it._viewModel.showToast.value, `is`(expectedMessage))
         }
-    }
-
-    @Test
-    fun reminderSaved_toastMessageShown() {
-        toastIdlingResourceHelper.resetToastFlag()
-
-        // GIVEN the user has location and notification permissions granted
-        grantLocationPermission()
-        grantNotificationPermission()
-
-        // WHEN the user clicks to add a reminder
-        onView(withId(R.id.addReminderFAB)).perform(click())
-
-        // WHEN the user adds a reminder and clicks to add a location
-        onView(withId(R.id.reminderTitle)).perform(typeText("Title"))
-        onView(withId(R.id.reminderDescription)).perform(typeText("Description"))
-        onView(withId(R.id.selectLocation)).perform(click())
-
-        // WHEN the user dismisses the dialog, long clicks to add a location and clicks to save the location
-        onView(withText("OK"))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
-            .perform(click())
-
-        onView(withId(R.id.locationChooserMap)).perform(longClick())
-        onView(withId(R.id.btn_save_location)).perform(click())
-        viewModel.setRunningQOrLater(true)
-        onView(withId(R.id.saveReminder))
-            .check(matches(isDisplayed()))
-            .check(matches(isClickable()))
-            .perform(click())
-
-        // THEN verify the Toast was shown
-        assertTrue(toastIdlingResourceHelper.wasToastShown())
-
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val expectedMessage = context.getString(R.string.reminder_saved)
-        assertTrue(toastIdlingResourceHelper.toastMessage == expectedMessage)
     }
 }

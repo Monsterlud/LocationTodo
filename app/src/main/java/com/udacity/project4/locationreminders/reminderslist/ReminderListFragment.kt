@@ -52,7 +52,6 @@ class ReminderListFragment : BaseFragment() {
 
         binding.lifecycleOwner = this
         setupRecyclerView()
-
     }
 
     override fun onResume() {
