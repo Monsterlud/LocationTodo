@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders
 
+import android.os.IBinder
 import android.view.WindowManager
 import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.Root
@@ -26,16 +27,17 @@ class ToastIdlingResource : IdlingResource {
     }
 }
 
-class ToastMatcher : TypeSafeMatcher<Root>() {
-    override fun describeTo(description: Description) {
-        description.appendText("is toast")
+class ToastMatcher : TypeSafeMatcher<Root?>() {
+
+    override fun describeTo(description: Description?) {
+        description?.appendText("is toast")
     }
 
-    override fun matchesSafely(root: Root): Boolean {
-        val type = root.windowLayoutParams.get().type
+    public override fun matchesSafely(root: Root?): Boolean {
+        val type: Int? = root?.windowLayoutParams?.get()?.type
         if (type == WindowManager.LayoutParams.TYPE_TOAST) {
-            val windowToken = root.decorView.windowToken
-            val appToken = root.decorView.applicationWindowToken
+            val windowToken: IBinder = root.decorView.windowToken
+            val appToken: IBinder = root.decorView.applicationWindowToken
             if (windowToken === appToken) {
                 return true
             }

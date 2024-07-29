@@ -29,8 +29,6 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -137,26 +135,5 @@ class SaveReminderFragmentTest {
 
         onView(withId(com.google.android.material.R.id.snackbar_text))
             .check(matches(withText("Please select location")))
-    }
-
-    @Test
-    fun reminderSavedToDatabase_reminderSavedToastShown() = runBlockingTest {
-        // GIVEN user is on SaveReminderFragment
-        val scenario = launchFragmentInContainer<SaveReminderFragment>(
-            Bundle(),
-            R.style.AppTheme
-        )
-
-        val navController = mock(NavController::class.java)
-        val reminder = ReminderDataItem("Title", "Description", "Location", 0.0, 0.0)
-        val expectedMessage = appContext.getString(R.string.reminder_saved)
-
-        // WHEN user clicks on the save button and saves the reminder
-        // THEN reminder is saved and a toast is shown
-        scenario.onFragment {
-            Navigation.setViewNavController(it.requireView(), navController)
-            it._viewModel.validateAndSaveReminder(reminder)
-            assertThat(it._viewModel.showToast.value, `is`(expectedMessage))
-        }
     }
 }

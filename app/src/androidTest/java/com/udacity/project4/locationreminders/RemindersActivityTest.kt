@@ -3,7 +3,7 @@ package com.udacity.project4.locationreminders
 import android.content.Context
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
@@ -14,7 +14,8 @@ import com.udacity.project4.R
 import com.udacity.project4.locationreminders.data.FakeAndroidRemindersLocalRepository
 import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -58,8 +59,9 @@ class RemindersActivityTest {
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
     }
 
+    // Requires API < 30
     @Test
-    fun reminderSaved_toastMessageShown() = runBlockingTest {
+    fun reminderSaved_toastMessageShown() = runBlocking {
         val activityScenario = ActivityScenario.launch(RemindersActivity::class.java)
         dataBindingIdlingResource.monitorActivity(activityScenario)
 
@@ -68,28 +70,33 @@ class RemindersActivityTest {
         grantNotificationPermission()
 
         // WHEN the user clicks to add a reminder
-        Espresso.onView(ViewMatchers.withId(R.id.addReminderFAB)).perform(ViewActions.click())
+        onView(ViewMatchers.withId(R.id.addReminderFAB)).perform(ViewActions.click())
 
         // WHEN the user adds a reminder and clicks to add a location
-        Espresso.onView(ViewMatchers.withId(R.id.reminderTitle)).perform(ViewActions.typeText("Title"))
-        Espresso.onView(ViewMatchers.withId(R.id.reminderDescription)).perform(ViewActions.typeText("Description"))
-        Espresso.onView(ViewMatchers.withId(R.id.selectLocation)).perform(ViewActions.click())
+        onView(ViewMatchers.withId(R.id.reminderTitle)).perform(ViewActions.typeText("Title"))
+        onView(ViewMatchers.withId(R.id.reminderDescription)).perform(ViewActions.typeText("Description"))
+        onView(ViewMatchers.withId(R.id.selectLocation)).perform(ViewActions.click())
 
         // WHEN the user dismisses the dialog, long clicks to add a location and clicks to save the location
-        Espresso.onView(ViewMatchers.withText("OK"))
+        onView(ViewMatchers.withText("OK"))
             .inRoot(RootMatchers.isDialog())
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
             .perform(ViewActions.click())
 
-        Espresso.onView(ViewMatchers.withId(R.id.locationChooserMap)).perform(ViewActions.longClick())
-        Espresso.onView(ViewMatchers.withId(R.id.btn_save_location)).perform(ViewActions.click())
+        delay(2000)
 
-        Espresso.onView(ViewMatchers.withId(R.id.saveReminder))
+        onView(ViewMatchers.withId(R.id.locationChooserMap)).perform(ViewActions.longClick())
+        onView(ViewMatchers.withId(R.id.btn_save_location)).perform(ViewActions.click())
+
+        onView(ViewMatchers.withId(R.id.saveReminder))
             .perform(ViewActions.click())
 
         // THEN verify the Toast was shown
-        Espresso.onView(ViewMatchers.withText("Title")).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withText("Description")).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        onView(ViewMatchers.withText(R.string.reminder_saved)).inRoot(ToastMatcher())
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+
+        onView(ViewMatchers.withText("Title")).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
+        onView(ViewMatchers.withText("Description")).check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
 
         activityScenario.close()
     }

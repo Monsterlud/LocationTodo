@@ -32,12 +32,12 @@ class FakeAndroidRemindersLocalRepository(
         return if (shouldReturnError) {
             return Result.Error("Reminder not found")
         } else {
-            for (reminder in reminders) {
-                if (reminder.id == id) {
-                    return Result.Success(reminder)
-                }
+            val reminder = reminders.firstOrNull { it.id == id }
+            if (reminder != null) {
+                return Result.Success(reminder)
+            } else {
+                return Result.Error("There is no reminder with this id")
             }
-            Result.Error("Reminder not found")
         }
     }
 
