@@ -29,8 +29,9 @@ class FakeRemindersLocalRepository(
     }
 
     override suspend fun getReminder(id: String): Result<ReminderDTO> {
-        return if (shouldReturnError) {
-            return Result.Error("Reminder not found")
+        if (shouldReturnError) {
+            val exception = Exception("Exception thrown while fetching reminder")
+            return Result.Error(exception.message)
         } else {
             val reminder = reminders.firstOrNull { it.id == id }
             if (reminder != null) {
@@ -54,3 +55,5 @@ class FakeRemindersLocalRepository(
     }
 
 }
+
+class ReminderNotFoundException(message: String) : Exception(message)
