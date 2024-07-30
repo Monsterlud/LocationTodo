@@ -28,7 +28,9 @@ import com.udacity.project4.databinding.ActivityRemindersBinding
 import com.udacity.project4.locationreminders.geofence.GeofenceBroadcastReceiver
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_NOTIFICATION_AND_BACKGROUND_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
+import com.udacity.project4.locationreminders.savereminder.SaveReminderFragment
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.locationreminders.savereminder.selectreminderlocation.SelectLocationFragment
 import org.koin.android.ext.android.inject
@@ -59,6 +61,7 @@ class RemindersActivity : AppCompatActivity() {
         binding = ActivityRemindersBinding.inflate(layoutInflater)
 
         _viewModel.setRunningQOrLater(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q)
+        _viewModel.setRunningTiramisuOrLater(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU)
         geofencingClient = LocationServices.getGeofencingClient(this)
 
         geofencePendingIntent = createGeofencePendingIntent()
@@ -87,18 +90,6 @@ class RemindersActivity : AppCompatActivity() {
         )
         return pendingIntent
     }
-
-//    fun checkPermissionsAndStartGeofencing(
-//        reminderDataItem: ReminderDataItem,
-//        listener: GeofenceSetupListener
-//    ) {
-//        Log.d(
-//            TAG,
-//            "checkPermissionsAndStartGeofencing: ***checkpermissionsandstartgeofencing() triggered"
-//        )
-//        this.reminderDTO = reminderDataItem
-//        checkDeviceLocationSettingsAndStartGeofence(reminderDataItem = reminderDTO!!)
-//    }
 
     fun checkDeviceLocationSettingsAndStartGeofence(
         resolve: Boolean = true,
@@ -140,10 +131,11 @@ class RemindersActivity : AppCompatActivity() {
         }
         locationsSettingsResponseTask.addOnCompleteListener {
             if (it.isSuccessful) {
+                val dto = reminderDTO
                 addLocationReminderGeofence(
                     latitude!!,
                     longitude!!,
-                    reminderDTO!!.id,
+                    reminderDataItem.id,
                 )
             }
         }
@@ -236,9 +228,21 @@ class RemindersActivity : AppCompatActivity() {
                     }
                 } else {
                     Log.d(TAG, "Foreground location permission denied")
-                    Toast.makeText(this, "My Location feature of Google Maps is not available", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "My Location feature of Google Maps is not available", Toast.LENGTH_LONG).show()
                 }
             }
+            REQUEST_NOTIFICATION_AND_BACKGROUND_PERMISSIONS_REQUEST_CODE -> {
+                val allPermissionsGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                val currentFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+                    ?.childFragmentManager?.fragments?.firstOrNull() as? SaveReminderFragment
+
+                if (allPermissionsGranted) {
+                    currentFragment?.checkPermissionsAndSaveReminder()
+                } else {
+                    Toast.makeText(this, "You must grant all permissions to use this feature", Toast.LENGTH_LONG).show()
+                }
+            }
+            else -> {}
         }
     }
 

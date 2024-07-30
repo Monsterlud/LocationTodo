@@ -3,6 +3,7 @@ package com.udacity.project4.utils
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Activity
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -14,8 +15,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.GeofenceStatusCodes
 import com.udacity.project4.R
-import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
 import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE
+import com.udacity.project4.locationreminders.geofence.GeofenceConstants.REQUEST_NOTIFICATION_AND_BACKGROUND_PERMISSIONS_REQUEST_CODE
 
 const val TAG = "PermissionsHandler"
 
@@ -28,9 +29,24 @@ class PermissionsHandler {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun isBackgroundLocationPermissionGranted(context: Context, runningQOrLater: Boolean) : Boolean {
+    fun isBackgroundLocationPermissionGranted(context: Context, runningQOrLater: Boolean): Boolean {
         return if (runningQOrLater) {
-            ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+            ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
+
+    fun isNotificationsPermissionGranted(
+        context: Context,
+        runningTiramisuOrLater: Boolean
+    ): Boolean {
+        return if (runningTiramisuOrLater) {
+            val notificationManager = context.getSystemService(NotificationManager::class.java)
+            return notificationManager.areNotificationsEnabled()
         } else {
             true
         }
@@ -48,19 +64,34 @@ class PermissionsHandler {
         )
     }
 
-    fun requestBackgroundLocationPermission(activity: Activity) {
+    fun requestNotificationAndBackgroundLocationPermission(
+        activity: Activity,
+        runningTiramisuOrLater: Boolean,
+        hasNotificationPermission: Boolean,
+        hasBackgroundLocationPermission: Boolean
+    ) {
+        val permissionsToRequest = mutableListOf<String>()
+
+        if (runningTiramisuOrLater && !hasNotificationPermission) {
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
         when {
-            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q -> {
-                Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION for Android 10 (Q)")
-                activity.requestPermissions(
-                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
-                    REQUEST_BACKGROUND_ONLY_PERMISSIONS_REQUEST_CODE
-                )
+            Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && !hasBackgroundLocationPermission -> {
+                permissionsToRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             }
             Build.VERSION.SDK_INT > Build.VERSION_CODES.Q -> {
-                Log.d(TAG, "Requesting ACCESS_BACKGROUND_LOCATION for Android 11 or above")
                 showBackgroundLocationRationale(activity)
             }
+            else -> {}
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                activity,
+                permissionsToRequest.toTypedArray(),
+                REQUEST_NOTIFICATION_AND_BACKGROUND_PERMISSIONS_REQUEST_CODE
+            )
         }
     }
 

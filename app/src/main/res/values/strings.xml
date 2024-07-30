@@ -22,8 +22,8 @@
     <string name="location_required_error">Location services must be enabled to use this app</string>
     <string name="foreground_location_permissions_denied_explanation">You need to grant location permission in order to add a location to this reminder.</string>
     <string name="notification_permissions_denied_explanation">You need to grant notification permission in system settings in order to add this reminder.</string>
-    <string name="both_permissions_denied_explanation">You need to grant location and notification permissions in order to add a location to this reminder.</string>
     <string name="background_location_permission_denied_explanation">Your request for location permission was denied. Please enable "Allow all the time" in Settings.</string>
+    <string name="background_and_notification_permissions_denied_explanation">You need to grant background location and notification permissions in order to add a location to this reminder.</string>
     <string name="settings">Settings</string>
     <string name="select_poi">Please select a point of interest</string>
     <string name="geofence_entered">Geofence Entered</string>
@@ -58,7 +58,7 @@
     <string name="title">Title</string>
     <string name="description">Description</string>
     <string name="location">Location</string>
-    <string name="geofence_added">Location Reminder Geofence added.</string>
+    <string name="geofence_added">Location Reminder Geofence added</string>
     <string name="geofences_removed">Geofences removed.</string>
     <string name="geofence_transition_invalid_type">Invalid geofence transition type</string>
     <string name="unknown_geofence_error">Unknown geofence error</string>

@@ -31,6 +31,14 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     val runningQOrLater: LiveData<Boolean>
         get() = _runningQOrLater
 
+    private val _runningTiramisuOrLater = MutableLiveData<Boolean>()
+    val runningTiramisuOrLater: LiveData<Boolean>
+        get() = _runningTiramisuOrLater
+
+    val _reminderSaved = MutableLiveData<Boolean>()
+    val reminderSaved: LiveData<Boolean>
+        get() = _reminderSaved
+
     /**
      * Clear the live data objects to start fresh next time the view model gets called
      */
@@ -47,6 +55,14 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
         _runningQOrLater.value = value
     }
 
+    fun setRunningTiramisuOrLater(value: Boolean) {
+        _runningTiramisuOrLater.value = value
+    }
+
+    fun setReminderSaved(value: Boolean) {
+        _reminderSaved.value = value
+    }
+
     /**
      * Validate the entered data then saves the reminder data to the DataSource
      */
@@ -61,7 +77,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     /**
      * Save the reminder to the data source
      */
-    private fun saveReminder(reminderData: ReminderDataItem) {
+    fun saveReminder(reminderData: ReminderDataItem) {
         showLoading.value = true
         viewModelScope.launch {
             dataSource.saveReminder(
@@ -76,6 +92,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
             )
             latitude.value = reminderData.latitude
             longitude.value = reminderData.longitude
+            setReminderSaved(true)
             showLoading.value = false
             showToast.value = app.getString(R.string.reminder_saved)
             navigationCommand.value = NavigationCommand.Back
@@ -84,6 +101,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
 
     fun getReminder(id: String): LiveData<Result<ReminderDTO>> {
         return liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+
             // Switch to the main thread to update showLoading
             withContext(Dispatchers.Main) {
                 showLoading.value = true
@@ -106,7 +124,7 @@ class SaveReminderViewModel(val app: Application, val dataSource: ReminderDataSo
     /**
      * Validate the entered data and show error to the user if there's any invalid data
      */
-    private fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
+    fun validateEnteredData(reminderData: ReminderDataItem): Boolean {
         if (reminderData.title.isNullOrEmpty()) {
             showSnackBarInt.value = R.string.err_enter_title
             return false
